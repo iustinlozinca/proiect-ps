@@ -4,11 +4,11 @@ library(ggplot2)
 ui_ex13 <- function(id) {
   ns <- NS(id)
   fluidPage(
-    titlePanel("Analiză de Sinteză"),
+    titlePanel("Analiza de Sinteza"),
     sidebarLayout(
       sidebarPanel(
         h4("Parametri Sistem"),
-        sliderInput(ns("n_sim"), "Simulări:",
+        sliderInput(ns("n_sim"), "Simulari:",
           min = 1000, max = 10000, value = 5000, step = 1000
         ),
         sliderInput(ns("p_succes"), "Probabilitate succes (p):",
@@ -19,40 +19,40 @@ ui_ex13 <- function(id) {
         ),
         hr(),
         h4("Parametri Economici"),
-        numericInput(ns("castig"), "Câștig/succes (RON):", value = 5),
+        numericInput(ns("castig"), "Castig/succes (RON):", value = 5),
         numericInput(ns("cost_churn"), "Cost churn (RON):", value = 500),
         numericInput(ns("penalitate"), "Penalitate SLA (RON):", value = 10)
       ),
       mainPanel(
         tabsetPanel(
           tabPanel(
-            "Probabilitate Empirică (a)",
-            h4("Rolul Probabilității Empirice"),
+            "Probabilitate Empirica (a)",
+            h4("Rolul Probabilitatii Empirice"),
             plotOutput(ns("plotConvergenta")),
-            verbatimTextOutput(ns("textEmpirică"))
+            verbatimTextOutput(ns("textEmpirica"))
           ),
           tabPanel(
-            "Condiționări (b)",
-            h4("Ce Informații Aduc Condiționările"),
+            "Conditionari (b)",
+            h4("Ce Informatii Aduc Conditionarile"),
             tableOutput(ns("tabConditionari")),
             plotOutput(ns("plotConditionari")),
             verbatimTextOutput(ns("textConditionari"))
           ),
           tabPanel(
-            "Inegalități (c)",
-            h4("Utilitatea Inegalităților Probabilistice"),
+            "Inegalitati (c)",
+            h4("Utilitatea Inegalitatilor Probabilistice"),
             tableOutput(ns("tabInegalitati")),
             verbatimTextOutput(ns("textInegalitati"))
           ),
           tabPanel(
             "Tehnic → Economic (d)",
-            h4("Legătura Performanță Tehnică - Impact Economic"),
+            h4("Legatura Performanta Tehnica - Impact Economic"),
             plotOutput(ns("plotTehnicEconomic")),
             verbatimTextOutput(ns("textTehnicEconomic"))
           ),
           tabPanel(
             "Sensibilitate (e)",
-            h4("Parametrii cu Cea Mai Mare Influență"),
+            h4("Parametrii cu Cea Mai Mare Influenta"),
             plotOutput(ns("plotSensibilitate")),
             uiOutput(ns("textSensibilitate"))
           )
@@ -115,28 +115,28 @@ server_ex13 <- function(id) {
           linetype = "dashed", linewidth = 1
         ) +
         labs(
-          title = "Convergența P(A) Empiric → P(A) Teoretic",
+          title = "Convergenta P(A) Empiric → P(A) Teoretic",
           subtitle = paste("P(A) teoretic =", round(p_teor, 4)),
-          x = "Număr de simulări (n)", y = "P(Succes)"
+          x = "Numar de simulari (n)", y = "P(Succes)"
         ) +
         theme_minimal()
     })
 
-    output$textEmpirică <- renderText({
+    output$textEmpirica <- renderText({
       df <- sim_data()
       p_emp <- mean(df$Succes)
       p_teor <- 1 - (1 - input$p_succes)^input$max_retry
 
       paste0(
-        "ROLUL PROBABILITĂȚII EMPIRICE\n",
+        "ROLUL PROBABILITATII EMPIRICE\n",
         "=============================\n\n",
         "P(A) empiric = ", round(p_emp, 4), "\n",
         "P(A) teoretic = ", round(p_teor, 4), "\n",
-        "Diferența = ", round(abs(p_emp - p_teor), 5), "\n\n",
-        "Conform Legii Numerelor Mari, probabilitatea empirică\n",
-        "converge către cea teoretică când n → ∞.\n\n",
-        "Utilitate: Când nu cunoaștem distribuția exactă,\n",
-        "putem estima probabilitățile prin simulare/observație."
+        "Diferenta = ", round(abs(p_emp - p_teor), 5), "\n\n",
+        "Conform Legii Numerelor Mari, probabilitatea empirica\n",
+        "converge catre cea teoretica cand n → ∞.\n\n",
+        "Utilitate: Cand nu cunoastem distributia exacta,\n",
+        "putem estima probabilitatile prin simulare/observatie."
       )
     })
 
@@ -158,21 +158,21 @@ server_ex13 <- function(id) {
         }
 
         data.frame(
-          Măsură = c(
+          Masura = c(
             "P(A)", "P(A | N=1)", paste0("P(A | N=", input$max_retry, ")"),
-            "E(T)", "E(T | succes)", "E(T | eșec)"
+            "E(T)", "E(T | succes)", "E(T | esec)"
           ),
           Valoare = c(
             p_a, p_a_n1, p_a_n_max, e_t, e_t_succes,
             if (is.na(e_t_esec)) NA else e_t_esec
           ),
           Interpretare = c(
-            "Rata globală de succes",
+            "Rata globala de succes",
             "Succes din prima = 100%",
-            "Include și eșecurile totale",
+            "Include si esecurile totale",
             "Timp mediu global",
             "Timp mediu pentru succese",
-            "Timp mediu pentru eșecuri"
+            "Timp mediu pentru esecuri"
           )
         )
       },
@@ -183,17 +183,17 @@ server_ex13 <- function(id) {
     output$plotConditionari <- renderPlot({
       df <- sim_data()
 
-      df$Rezultat <- ifelse(df$Succes == 1, "Succes", "Eșec")
+      df$Rezultat <- ifelse(df$Succes == 1, "Succes", "Esec")
 
       ggplot(df, aes(
         x = .data$Rezultat, y = .data$Timp, fill = .data$Rezultat
       )) +
         geom_boxplot(alpha = 0.7) +
         scale_fill_manual(
-          values = c("Succes" = "#2ecc71", "Eșec" = "#e74c3c")
+          values = c("Succes" = "#2ecc71", "Esec" = "#e74c3c")
         ) +
         labs(
-          title = "E(T | I) - Timp Condiționat de Rezultat",
+          title = "E(T | I) - Timp Conditionat de Rezultat",
           x = "", y = "Timp (s)"
         ) +
         theme_minimal() +
@@ -210,22 +210,22 @@ server_ex13 <- function(id) {
       }
 
       paste0(
-        "CE INFORMAȚII ADUC CONDIȚIONĂRILE\n",
+        "CE INFORMATII ADUC CONDITIONARILE\n",
         "==================================\n\n",
-        "1. P(A|N=1) = 1 deoarece dacă N=1, cererea s-a oprit\n",
-        "   la prima încercare, deci a reușit.\n\n",
+        "1. P(A|N=1) = 1 deoarece daca N=1, cererea s-a oprit\n",
+        "   la prima incercare, deci a reusit.\n\n",
         "2. E(T|succes) = ", round(e_t_s, 2), "s\n",
-        "   E(T|eșec) = ",
+        "   E(T|esec) = ",
         if (!is.na(e_t_e)) round(e_t_e, 2) else "N/A", "s\n\n",
         if (!is.na(e_t_e)) {
           paste0(
-            "   Eșecurile durează mai mult pentru că parcurg\n",
-            "   toate cele ", input$max_retry, " încercări.\n\n"
+            "   Esecurile dureaza mai mult pentru ca parcurg\n",
+            "   toate cele ", input$max_retry, " incercari.\n\n"
           )
         } else {
           ""
         },
-        "Condiționările permit segmentarea analizei și\n",
+        "Conditionarile permit segmentarea analizei si\n",
         "identificarea comportamentelor diferite pe subgrupuri."
       )
     })
@@ -244,13 +244,13 @@ server_ex13 <- function(id) {
         p_markov_emp <- mean(t_vals >= a_markov)
         p_markov_bound <- mu / a_markov
 
-        # Cebîșev: P(|T - μ| >= kσ) <= 1/k²
+        # Cebisev: P(|T - μ| >= kσ) <= 1/k²
         k <- 2
         p_ceb_emp <- mean(abs(t_vals - mu) >= k * sigma)
         p_ceb_bound <- 1 / k^2
 
         data.frame(
-          Inegalitate = c("Markov", "Cebîșev (k=2)"),
+          Inegalitate = c("Markov", "Cebisev (k=2)"),
           `P_empiric` = c(p_markov_emp, p_ceb_emp),
           `Limita_sup` = c(p_markov_bound, p_ceb_bound),
           Verificat = c(
@@ -268,17 +268,17 @@ server_ex13 <- function(id) {
       sigma <- sd(df$Timp)
 
       paste0(
-        "UTILITATEA INEGALITĂȚILOR PROBABILISTICE\n",
+        "UTILITATEA INEGALITATILOR PROBABILISTICE\n",
         "========================================\n\n",
         "Markov: P(T ≥ a) ≤ E(T)/a\n",
-        "  → Oferă o limită superioară fără a cunoaște distribuția\n\n",
-        "Cebîșev: P(|T - μ| ≥ kσ) ≤ 1/k²\n",
-        "  → Garantează că valorile extreme sunt rare\n\n",
+        "  → Ofera o limita superioara fara a cunoaste distributia\n\n",
+        "Cebisev: P(|T - μ| ≥ kσ) ≤ 1/k²\n",
+        "  → Garanteaza ca valorile extreme sunt rare\n\n",
         "Pentru T: μ = ", round(mu, 2), "s, σ = ", round(sigma, 2), "s\n\n",
-        "UTILITATE PRACTICĂ:\n",
-        "- Garanții worst-case pentru SLA\n",
+        "UTILITATE PRACTICA:\n",
+        "- Garantii worst-case pentru SLA\n",
         "- Dimensionarea buffer-elor de timp\n",
-        "- Evaluarea riscului fără distribuție exactă"
+        "- Evaluarea riscului fara distributie exacta"
       )
     })
 
@@ -309,7 +309,7 @@ server_ex13 <- function(id) {
         geom_line(aes(y = .data$Profit), color = "steelblue", linewidth = 1.2) +
         geom_point(aes(y = .data$Profit), color = "steelblue", size = 3) +
         labs(
-          title = "Legătura: Probabilitate Succes → Profit",
+          title = "Legatura: Probabilitate Succes → Profit",
           x = "Probabilitate Succes (p)", y = "Profit Mediu (RON)"
         ) +
         theme_minimal()
@@ -317,19 +317,19 @@ server_ex13 <- function(id) {
 
     output$textTehnicEconomic <- renderText({
       paste0(
-        "LEGĂTURA PERFORMANȚĂ TEHNICĂ - IMPACT ECONOMIC\n",
+        "LEGATURA PERFORMANTA TEHNICA - IMPACT ECONOMIC\n",
         "===============================================\n\n",
         "Parametri tehnici → Rezultate economice:\n\n",
         "1. p (prob. succes) ↑ → Profit ↑\n",
-        "   Mai multe cereri reușite = mai mult câștig\n\n",
-        "2. Latență ↑ → Penalități SLA ↑ → Profit ↓\n",
-        "   Timpi mari de răspuns generează costuri\n\n",
+        "   Mai multe cereri reusite = mai mult castig\n\n",
+        "2. Latenta ↑ → Penalitati SLA ↑ → Profit ↓\n",
+        "   Timpi mari de raspuns genereaza costuri\n\n",
         "3. Churn ↑ → Pierderi mari\n",
         "   Un client pierdut = ", input$cost_churn, " RON\n",
         "   Echivalent cu ", input$cost_churn / input$castig,
-        " cereri reușite\n\n",
-        "Concluzie: Îmbunătățirile tehnice au impact\n",
-        "economic direct și cuantificabil."
+        " cereri reusite\n\n",
+        "Concluzie: imbunatatirile tehnice au impact\n",
+        "economic direct si cuantificabil."
       )
     })
 
@@ -380,8 +380,8 @@ server_ex13 <- function(id) {
         ) +
         coord_flip() +
         labs(
-          title = "Analiză de Sensibilitate: Impact pe Profit",
-          x = "", y = "Variație Profit (RON)"
+          title = "Analiza de Sensibilitate: Impact pe Profit",
+          x = "", y = "Variatie Profit (RON)"
         ) +
         theme_minimal() +
         theme(legend.position = "none")
@@ -389,24 +389,24 @@ server_ex13 <- function(id) {
 
     output$textSensibilitate <- renderUI({
       HTML(paste0(
-        "<h4>Parametrii cu Cea Mai Mare Influență</h4>",
+        "<h4>Parametrii cu Cea Mai Mare Influenta</h4>",
         "<ol>",
         "<li><b>Probabilitatea de succes (p)</b> - ",
         "impact direct pe venituri</li>",
         "<li><b>Rata de churn</b> - pierderi mari per eveniment</li>",
-        "<li><b>Penalitățile SLA</b> - impact moderat dar constant</li>",
+        "<li><b>Penalitatile SLA</b> - impact moderat dar constant</li>",
         "</ol>",
-        "<h4>Recomandări pentru Îmbunătățire</h4>",
+        "<h4>Recomandari pentru imbunatatire</h4>",
         "<ul>",
         "<li>Prioritate 1: Reducerea churn-ului (cost mare per eveniment)</li>",
-        "<li>Prioritate 2: Creșterea ratei de succes (p)</li>",
-        "<li>Prioritate 3: Optimizarea latenței pentru SLA</li>",
+        "<li>Prioritate 2: Cresterea ratei de succes (p)</li>",
+        "<li>Prioritate 3: Optimizarea latentei pentru SLA</li>",
         "</ul>",
         "<h4>Compromisuri</h4>",
-        "<p>Creșterea lui p poate necesita ",
-        "infrastructură mai costisitoare.<br>",
-        "Reducerea churn-ului poate necesita investiții în UX.<br>",
-        "Analiza cost-beneficiu determină prioritățile.</p>"
+        "<p>Cresterea lui p poate necesita ",
+        "infrastructura mai costisitoare.<br>",
+        "Reducerea churn-ului poate necesita investitii in UX.<br>",
+        "Analiza cost-beneficiu determina prioritatile.</p>"
       ))
     })
   })

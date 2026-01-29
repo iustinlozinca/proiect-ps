@@ -16,7 +16,7 @@ ui_ex1 <- function(id) {
         hr(),
 
         # Slidere pentru distributia Binomiala
-        sliderInput(ns("n_binom"), "Nr. maxim clienți (n - Binomial):",
+        sliderInput(ns("n_binom"), "Nr. maxim clienti (n - Binomial):",
           min = 100, max = 1000, value = 500
         ),
         sliderInput(ns("p_binom"), "Probabilitatea de activare (p):",
@@ -32,13 +32,13 @@ ui_ex1 <- function(id) {
         # Slider conditionat pentru Ani
         conditionalPanel(
           condition = sprintf("input['%s'] == 'Ani'", ns("unitate_timp")),
-          sliderInput(ns("ani"), "Număr de ani:", value = 1, min = 1, max = 10)
+          sliderInput(ns("ani"), "Numar de ani:", value = 1, min = 1, max = 10)
         ),
 
         # Slider conditionat pentru Luni
         conditionalPanel(
           condition = sprintf("input['%s'] == 'Luni'", ns("unitate_timp")),
-          sliderInput(ns("luni"), "Număr de luni:",
+          sliderInput(ns("luni"), "Numar de luni:",
             value = 1, min = 1, max = 12
           )
         )
@@ -63,7 +63,6 @@ ui_ex1 <- function(id) {
 
 server_ex1 <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Generam datele in mod "reactiv"
     date_simulatre <- reactive({
       if (input$unitate_timp == "Ani") {
         n_zile <- input$ani * 365
@@ -83,9 +82,9 @@ server_ex1 <- function(id) {
       ggplot(data.frame(valoare = date), aes(x = .data$valoare)) +
         geom_histogram(binwidth = 1, fill = "skyblue", color = "white") +
         labs(
-          title = "Distribuția Poisson (Trafic Nelimitat)",
-          x = "Nr. Clienți / Zi",
-          y = "Frecvență"
+          title = "Distributia Poisson (Trafic Nelimitat)",
+          x = "Nr. Clienti / Zi",
+          y = "Frecventa"
         ) +
         theme_minimal()
     })
@@ -96,9 +95,9 @@ server_ex1 <- function(id) {
       ggplot(data.frame(valoare = date), aes(x = .data$valoare)) +
         geom_histogram(binwidth = 1, fill = "salmon", color = "white") +
         labs(
-          title = "Distribuția Binomială (Trafic Plafonat)",
-          x = "Nr. Clienți / Zi",
-          y = "Frecvență"
+          title = "Distributia Binomiala (Trafic Plafonat)",
+          x = "Nr. Clienti / Zi",
+          y = "Frecventa"
         ) +
         theme_minimal()
     })
@@ -132,10 +131,10 @@ server_ex1 <- function(id) {
       }
 
       paste(
-        "Simularea a fost realizată pentru", text_timp,
+        "Simularea a fost realizata pentru", text_timp,
         "(aprox.", zile_total, "zile). ",
-        "Observați cum Media Empirică este foarte aproape de cea Teoretică",
-        "datorită Legii Numerelor Mari."
+        "Observati cum Media Empirica este foarte aproape de cea Teoretica",
+        "datorita Legii Numerelor Mari."
       )
     })
   })

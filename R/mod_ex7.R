@@ -4,54 +4,54 @@ library(ggplot2)
 ui_ex7 <- function(id) {
   ns <- NS(id)
   fluidPage(
-    titlePanel("Independență vs Dependență"),
+    titlePanel("Independenta vs Dependenta"),
     sidebarLayout(
       sidebarPanel(
         h4("Parametri Simulare"),
-        sliderInput(ns("n_sim"), "Număr de simulări:", 1000, 10000, 2000,
+        sliderInput(ns("n_sim"), "Numar de simulari:", 1000, 10000, 2000,
           step = 500
         ),
         sliderInput(
-          ns("p_succes"), "Probabilitate succes (per încercare):",
+          ns("p_succes"), "Probabilitate succes (per incercare):",
           0.1, 0.9, 0.6
         ),
         sliderInput(
-          ns("max_retry"), "Număr maxim încercări (N_max):",
+          ns("max_retry"), "Numar maxim incercari (N_max):",
           2, 10, 5
         ),
         hr(),
-        h4("Parametri Latență (Exponențială)"),
-        sliderInput(ns("base_lambda"), "Lambda de bază (rate):", 0.5, 5.0, 2.0),
+        h4("Parametri Latenta (Exponentiala)"),
+        sliderInput(ns("base_lambda"), "Lambda de baza (rate):", 0.5, 5.0, 2.0),
         helpText("Lambda = 2 => Medie = 0.5 secunde."),
         hr(),
-        h4("Factor Dependență (Scenario B)"),
+        h4("Factor Dependenta (Scenario B)"),
         sliderInput(
           ns("degrad_factor"), "Factor degradare (k):",
           0.1, 0.9, 0.7
         ),
         helpText(
-          "În scenariul Dependent, după fiecare eșec, rata scade:",
+          "in scenariul Dependent, dupa fiecare esec, rata scade:",
           "lambda_nou = lambda * k.",
-          "O rată mai mică înseamnă un timp mediu mai MARE (congestie/backoff)."
+          "O rata mai mica inseamna un timp mediu mai MARE (congestie/backoff)."
         )
       ),
       mainPanel(
         tabsetPanel(
           tabPanel(
-            "Comparație Distribuții (a)",
+            "Comparatie Distributii (a)",
             plotOutput(ns("plotComp")),
             helpText(
               "Histograme suprapuse pentru Timpul Total (T).",
               "Verde = Independent (Stabil).",
-              "Roșu = Dependent (Riscuri/Congestie)."
+              "Rosu = Dependent (Riscuri/Congestie)."
             )
           ),
           tabPanel(
-            "Varianță și Statistici (b)",
-            h4("Tabel Comparativ (Medie și Varianță)"),
+            "Varianta si Statistici (b)",
+            h4("Tabel Comparativ (Medie si Varianta)"),
             tableOutput(ns("tabComp")),
             hr(),
-            h4("Analiza Volatilității"),
+            h4("Analiza Volatilitatii"),
             uiOutput(ns("analizaVar"))
           ),
           tabPanel(
@@ -144,8 +144,8 @@ server_ex7 <- function(id) {
           values = c("Dependent" = "red", "Independent" = "green")
         ) +
         labs(
-          title = "Distribuția Timpului Total: Independent vs Dependent",
-          subtitle = "Liniile punctate indică media.",
+          title = "Distributia Timpului Total: Independent vs Dependent",
+          subtitle = "Liniile punctate indica media.",
           x = "Timp Total (T)",
           y = "Densitate"
         ) +
@@ -177,12 +177,12 @@ server_ex7 <- function(id) {
       ratio <- var_dep / var_indep
 
       HTML(paste0(
-        "<p>Varianța în scenariul Dependent este de <b>", round(ratio, 2),
+        "<p>Varianta in scenariul Dependent este de <b>", round(ratio, 2),
         " ori</b> mai mare.</p>",
-        "<p>Aceasta indică o <b>instabilitate mult mai mare</b>. Utilizatorii",
-        "'ghinioniști' care eșuează ",
-        "de câteva ori intră într-o spirală a întârzierilor (coada lungă ",
-        "a distribuției).</p>"
+        "<p>Aceasta indica o <b>instabilitate mult mai mare</b>. Utilizatorii",
+        "'ghinionisti' care esueaza ",
+        "de cateva ori intra intr-o spirala a intarzierilor (coada lunga ",
+        "a distributiei).</p>"
       ))
     })
 
@@ -193,15 +193,15 @@ server_ex7 <- function(id) {
         "<ul>",
         "<li><b>Risc:</b> Scenariul dependent introduce un ",
         "<i>risc sistemic</i>.",
-        "Câțiva utilizatori pot experimenta timpi extrem de lungi (outliers), ",
-        "ceea ce nu se întâmplă în scenariul independent.</li>",
+        "Cativa utilizatori pot experimenta timpi extrem de lungi (outliers), ",
+        "ceea ce nu se intampla in scenariul independent.</li>",
         "<li><b>Stabilitate:</b> Sistemul independent este mai <i>stabil</i> ",
-        "și <i>predictibil</i>. ",
-        "Dependența de eșecuri anterioare crește ",
-        "incertitudinea (varianța).</li>",
-        "<li><b>Design:</b> În practică, trebuie să evităm situațiile unde ",
-        "'eșecul atrage eșec' ",
-        "(ex: retry storms care blochează serverul și mai tare).</li>",
+        "si <i>predictibil</i>. ",
+        "Dependenta de esecuri anterioare creste ",
+        "incertitudinea (varianta).</li>",
+        "<li><b>Design:</b> in practica, trebuie sa evitam situatiile unde ",
+        "'esecul atrage esec' ",
+        "(ex: retry storms care blocheaza serverul si mai tare).</li>",
         "</ul>"
       ))
     })

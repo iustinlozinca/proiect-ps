@@ -1,11 +1,9 @@
 library(shiny)
 library(ggplot2)
 
-
-# Main UI
 ui <- navbarPage(
   id = "nav",
-  title = actionLink("app_title", "Proiect la Probabilități și Statistică",
+  title = actionLink("app_title", "Proiect la Probabilitati si Statistica",
     style = paste0(
       "color: white; text-decoration: none; ",
       "font-weight: bold; font-size: 1.25rem;"
@@ -25,23 +23,23 @@ ui <- navbarPage(
           "background-color: #ecf0f1; padding: 2rem; ",
           "border-radius: 10px;"
         ),
-        h3("Documentație", style = "color: #2c3e50;"),
+        h3("Documentatie", style = "color: #2c3e50;"),
         hr(),
       )
     )
   ),
   navbarMenu(
-    "Cerințe",
+    "Cerinte",
     tabPanel(
       "1. Modelarea traficului zilnic",
       ui_ex1("ex1")
     ),
     tabPanel(
-      "2. Modelarea timpilor de răspuns",
+      "2. Modelarea timpilor de raspuns",
       ui_ex2("ex2")
     ),
     tabPanel(
-      "3. Cereri, retry-uri și evenimente",
+      "3. Cereri, retry-uri si evenimente",
       ui_ex3("ex3")
     ),
     tabPanel(
@@ -49,23 +47,23 @@ ui <- navbarPage(
       ui_ex4("ex4")
     ),
     tabPanel(
-      "5. V.A bidimensionale (discrete și continue)",
+      "5. V.A bidimensionale (discrete si continue)",
       ui_ex5("ex5")
     ),
     tabPanel(
-      "6. Probabilități condiționate și condiționări",
+      "6. Probabilitati conditionate si conditionari",
       ui_ex6("ex6")
     ),
     tabPanel(
-      "7. Independență vs dependență",
+      "7. Independenta vs dependenta",
       ui_ex7("ex7")
     ),
     tabPanel(
-      "8. Inegalități probabilistice (garanții worst-case)",
+      "8. Inegalitati probabilistice (garantii worst-case)",
       ui_ex8("ex8")
     ),
     tabPanel(
-      "9. Aproximare normală și agregare",
+      "9. Aproximare normala si agregare",
       ui_ex9("ex9")
     ),
     tabPanel(
@@ -77,24 +75,21 @@ ui <- navbarPage(
       ui_ex11("ex11")
     ),
     tabPanel(
-      "12. Vizualizare statistică",
+      "12. Vizualizare statistica",
       ui_ex12("ex12")
     ),
     tabPanel(
-      "13. Analiză de sinteză",
+      "13. Analiza de sinteza",
       ui_ex13("ex13")
     )
   )
 )
 
-# Main Server
 server <- function(input, output, session) {
-  # Home Button Logic
   observeEvent(input$app_title, {
     updateNavbarPage(session, "nav", selected = "home")
   })
 
-  # Call Modules
   server_ex1("ex1") # nolint
   server_ex2("ex2") # nolint
   server_ex3("ex3") # nolint
@@ -110,5 +105,4 @@ server <- function(input, output, session) {
   server_ex13("ex13") # nolint
 }
 
-# Run App
 shinyApp(ui, server)

@@ -8,10 +8,10 @@ ui_ex4 <- function(id) {
     sidebarLayout(
       sidebarPanel(
         helpText(
-          "Analiza perechii (N, F) unde N = Nr. Încercări, F = Nr. Eșecuri."
+          "Analiza perechii (N, F) unde N = Nr. incercari, F = Nr. Esecuri."
         ),
         sliderInput(
-          ns("n_sim"), "Număr de simulări:", 100, 5000, 1000,
+          ns("n_sim"), "Numar de simulari:", 100, 5000, 1000,
           step = 100
         ),
         sliderInput(
@@ -19,11 +19,11 @@ ui_ex4 <- function(id) {
           step = 0.1
         ),
         sliderInput(
-          ns("max_retry"), "Număr maxim încercări (N_max):",
+          ns("max_retry"), "Numar maxim incercari (N_max):",
           2, 10, 5
         ),
         hr(),
-        h4("Setări Churn (Abandon)"),
+        h4("Setari Churn (Abandon)"),
 
         # Churn Aleator (Unconditional)
         sliderInput(
@@ -32,49 +32,49 @@ ui_ex4 <- function(id) {
           step = 0.01
         ),
         helpText(
-          "Probabilitatea ca utilizatorul să renunțe după orice încercare,",
+          "Probabilitatea ca utilizatorul sa renunte dupa orice incercare,",
           "indiferent de rezultat."
         ),
         hr(),
 
         # Churn Conditionat (Conditional)
         checkboxInput(
-          ns("enable_churn"), "Activează Churn condiționat de eșecuri",
+          ns("enable_churn"), "Activeaza Churn conditionat de esecuri",
           value = FALSE
         ),
         conditionalPanel(
           condition = sprintf("input['%s'] == true", ns("enable_churn")),
           sliderInput(
-            ns("churn_threshold"), "Eșecuri consecutive până la abandon:",
+            ns("churn_threshold"), "Esecuri consecutive pana la abandon:",
             1, 5, 2
           ),
           helpText(
-            "Dacă utilizatorul are acest număr de eșecuri consecutive,",
-            "renunță imediat."
+            "Daca utilizatorul are acest numar de esecuri consecutive,",
+            "renunta imediat."
           )
         ),
         hr(),
         helpText(
-          "Observați cum F depinde de N și cum Churn-ul modifică distribuția."
+          "Observati cum F depinde de N si cum Churn-ul modifica distributia."
         )
       ),
       mainPanel(
         tabsetPanel(
           tabPanel(
-            "Distribuția Comună (Heatmap)",
+            "Distributia Comuna (Heatmap)",
             plotOutput(ns("jointPlot")),
             tableOutput(ns("jointTable")),
-            helpText("Valorile reprezintă P(N=n, F=f).")
+            helpText("Valorile reprezinta P(N=n, F=f).")
           ),
           tabPanel(
-            "Marginale & Independență",
-            h4("Distribuții Marginale"),
+            "Marginale & Independenta",
+            h4("Distributii Marginale"),
             fluidRow(
               column(6, plotOutput(ns("margN"))),
               column(6, plotOutput(ns("margF")))
             ),
             hr(),
-            h4("Test de Independență"),
+            h4("Test de Independenta"),
             verbatimTextOutput(ns("indepTest")),
             uiOutput(ns("indepInterp"))
           )
@@ -172,8 +172,8 @@ server_ex4 <- function(id) {
         geom_text(aes(label = round(.data$Prob, 3)), color = "black") +
         scale_fill_gradient(low = "white", high = "red") +
         labs(
-          title = "Distribuția Comună P(N, F)",
-          x = "F (Eșecuri)", y = "N (Încercări)"
+          title = "Distributia Comuna P(N, F)",
+          x = "F (Esecuri)", y = "N (incercari)"
         ) +
         theme_minimal()
     })
@@ -214,12 +214,12 @@ server_ex4 <- function(id) {
 
       HTML(paste0(
         "<br><p><b>Interpretare:</b></p>",
-        "<p>Valoarea <b>p-value</b> extrem de mică indică faptul că ",
-        "respingem ipoteza nulă de independență.</p>",
-        "<p><b>N și F sunt dependente</b>.</p>",
+        "<p>Valoarea <b>p-value</b> extrem de mica indica faptul ca ",
+        "respingem ipoteza nula de independenta.</p>",
+        "<p><b>N si F sunt dependente</b>.</p>",
         if (has_churn) {
           paste0(
-            "<p><b>Notă:</b> Prezența Churn-ului (aleator sau condiționat) ",
+            "<p><b>Nota:</b> Prezenta Churn-ului (aleator sau conditionat) ",
             "reduce lungimea medie a sesiunilor (N scade).</p>"
           )
         } else {

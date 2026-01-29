@@ -4,46 +4,46 @@ library(ggplot2)
 ui_ex9 <- function(id) {
   ns <- NS(id)
   fluidPage(
-    titlePanel("Aproximare Normală și Agregare"),
+    titlePanel("Aproximare Normala si Agregare"),
     sidebarLayout(
       sidebarPanel(
         h4("Parametri Simulare"),
-        sliderInput(ns("n_zile"), "Număr de zile simulate:",
+        sliderInput(ns("n_zile"), "Numar de zile simulate:",
           min = 100, max = 2000, value = 500, step = 100
         ),
         sliderInput(ns("cereri_zi"), "Cereri per zi:",
           min = 10, max = 500, value = 100, step = 10
         ),
         hr(),
-        h4("Distribuția Latențelor Individuale"),
-        selectInput(ns("dist_type"), "Tipul distribuției:",
+        h4("Distributia Latentelor Individuale"),
+        selectInput(ns("dist_type"), "Tipul distributiei:",
           choices = c(
-            "Exponențială" = "exp", "Gamma" = "gamma", "Uniformă" = "unif"
+            "Exponentiala" = "exp", "Gamma" = "gamma", "Uniforma" = "unif"
           )
         ),
-        sliderInput(ns("media_latenta"), "Media latenței (ms):",
+        sliderInput(ns("media_latenta"), "Media latentei (ms):",
           min = 50, max = 500, value = 200, step = 10
         ),
         hr(),
         helpText(
-          "Teorema Limită Centrală (TLC):", br(),
-          "Suma a n v.a. i.i.d. tinde către", br(),
-          "o distribuție normală când n → ∞"
+          "Teorema Limita Centrala (TLC):", br(),
+          "Suma a n v.a. i.i.d. tinde catre", br(),
+          "o distributie normala cand n → ∞"
         )
       ),
       mainPanel(
         tabsetPanel(
           tabPanel(
-            "Agregare Zilnică (a)",
-            h4("Distribuția Latenței Totale pe Zi"),
+            "Agregare Zilnica (a)",
+            h4("Distributia Latentei Totale pe Zi"),
             plotOutput(ns("plotAgregat")),
             hr(),
             tableOutput(ns("tabStatistici")),
             verbatimTextOutput(ns("explainAgregat"))
           ),
           tabPanel(
-            "Comparație cu Normala (b)",
-            h4("Histogramă vs Densitate Normală"),
+            "Comparatie cu Normala (b)",
+            h4("Histograma vs Densitate Normala"),
             plotOutput(ns("plotComparatie")),
             hr(),
             h4("Q-Q Plot (Cuantile-Cuantile)"),
@@ -104,10 +104,10 @@ server_ex9 <- function(id) {
         geom_density(color = "darkblue", linewidth = 1) +
         labs(
           title = paste(
-            "Distribuția Latenței Totale pe Zi (n =", input$cereri_zi,
+            "Distributia Latentei Totale pe Zi (n =", input$cereri_zi,
             "cereri/zi)"
           ),
-          x = "Latență Totală (ms)", y = "Densitate"
+          x = "Latenta Totala (ms)", y = "Densitate"
         ) +
         theme_minimal()
     })
@@ -131,16 +131,16 @@ server_ex9 <- function(id) {
         }
 
         data.frame(
-          Măsură = c(
-            "Media", "Deviația Standard", "Asimetria (Skewness)",
+          Masura = c(
+            "Media", "Deviatia Standard", "Asimetria (Skewness)",
             "Curtoza (Kurtosis)"
           ),
-          Empirică = c(
+          Empirica = c(
             mean(x), sd(x),
             sum((x - mean(x))^3) / (length(x) * sd(x)^3),
             sum((x - mean(x))^4) / (length(x) * sd(x)^4) - 3
           ),
-          Teoretică_Normal = c(n * media_ind, sqrt(n * var_ind), 0, 0)
+          Teoretica_Normal = c(n * media_ind, sqrt(n * var_ind), 0, 0)
         )
       },
       digits = 2
@@ -148,10 +148,10 @@ server_ex9 <- function(id) {
 
     output$explainAgregat <- renderText({
       paste0(
-        "Latența totală zilnică = suma a ", input$cereri_zi,
-        " latențe individuale.\n",
-        "Conform TLC, această sumă tinde către o distribuție normală.\n",
-        "Media sumei = n × μ, Varianța sumei = n × σ²"
+        "Latenta totala zilnica = suma a ", input$cereri_zi,
+        " latente individuale.\n",
+        "Conform TLC, aceasta suma tinde catre o distributie normala.\n",
+        "Media sumei = n × μ, Varianta sumei = n × σ²"
       )
     })
 
@@ -172,9 +172,9 @@ server_ex9 <- function(id) {
           color = "red", linewidth = 1.2
         ) +
         labs(
-          title = "Histogramă vs Distribuție Normală Ajustată",
+          title = "Histograma vs Distributie Normala Ajustata",
           subtitle = paste0("N(μ = ", round(m, 0), ", σ = ", round(s, 0), ")"),
-          x = "Latență Totală (ms)", y = "Densitate"
+          x = "Latenta Totala (ms)", y = "Densitate"
         ) +
         theme_minimal()
     })
@@ -188,8 +188,8 @@ server_ex9 <- function(id) {
         stat_qq(color = "steelblue", size = 2, alpha = 0.6) +
         stat_qq_line(color = "red", linewidth = 1) +
         labs(
-          title = "Q-Q Plot: Date vs Distribuție Normală",
-          x = "Cuantile Teoretice (Normală)", y = "Cuantile Empirice"
+          title = "Q-Q Plot: Date vs Distributie Normala",
+          x = "Cuantile Teoretice (Normala)", y = "Cuantile Empirice"
         ) +
         theme_minimal()
     })
@@ -199,7 +199,7 @@ server_ex9 <- function(id) {
       df <- sim_data()
       x <- df$LatentaTotala
 
-      # Shapiro-Wilk (max 5000 observații)
+      # Shapiro-Wilk (max 5000 observatii)
       x_test <- if (length(x) > 5000) sample(x, 5000) else x
       test <- shapiro.test(x_test)
 
@@ -208,9 +208,9 @@ server_ex9 <- function(id) {
         "W = ", round(test$statistic, 4), "\n",
         "p-value = ", format(test$p.value, digits = 4), "\n\n",
         "Interpretare:\n",
-        "H0: Datele provin dintr-o distribuție normală\n",
-        "Dacă p-value > 0.05, nu respingem H0 (aproximarea e adecvată)\n",
-        "Dacă p-value < 0.05, respingem H0 (aproximarea e mai puțin bună)"
+        "H0: Datele provin dintr-o distributie normala\n",
+        "Daca p-value > 0.05, nu respingem H0 (aproximarea e adecvata)\n",
+        "Daca p-value < 0.05, respingem H0 (aproximarea e mai putin buna)"
       )
     })
 
@@ -228,9 +228,9 @@ server_ex9 <- function(id) {
       skew <- sum((x - mean(x))^3) / (length(x) * sd(x)^3)
 
       HTML(paste0(
-        "<h4>Evaluarea Aproximării Normale</h4>",
-        "<p><b>Număr de termeni în sumă:</b> n = ", n, "</p>",
-        "<p><b>Distribuția originală:</b> ", input$dist_type, "</p>",
+        "<h4>Evaluarea Aproximarii Normale</h4>",
+        "<p><b>Numar de termeni in suma:</b> n = ", n, "</p>",
+        "<p><b>Distributia originala:</b> ", input$dist_type, "</p>",
         "<p><b>Asimetria agregatului:</b> ", round(skew, 3),
         " (normala are skewness = 0)</p>",
         "<p><b>p-value Shapiro-Wilk:</b> ", format(p_val, digits = 4), "</p>",
@@ -238,21 +238,21 @@ server_ex9 <- function(id) {
         "<p><b>Concluzie:</b> ",
         if (p_val > 0.05) {
           paste0(
-            "Aproximarea normală este <b>adecvată</b> pentru n = ", n,
+            "Aproximarea normala este <b>adecvata</b> pentru n = ", n,
             " termeni."
           )
         } else if (p_val > 0.01) {
           paste0(
-            "Aproximarea normală este <b>acceptabilă</b>, dar nu perfectă."
+            "Aproximarea normala este <b>acceptabila</b>, dar nu perfecta."
           )
         } else {
           paste0(
-            "Aproximarea normală este <b>slabă</b>. ",
-            "Creșteți numărul de cereri/zi pentru o aproximare mai bună."
+            "Aproximarea normala este <b>slaba</b>. ",
+            "Cresteti numarul de cereri/zi pentru o aproximare mai buna."
           )
         },
         "</p>",
-        "<p><i>Conform TLC, aproximarea se îmbunătățește odată cu creșterea ",
+        "<p><i>Conform TLC, aproximarea se imbunatateste odata cu cresterea ",
         "lui n.</i></p>"
       ))
     })

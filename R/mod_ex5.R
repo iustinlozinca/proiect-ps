@@ -4,12 +4,12 @@ library(ggplot2)
 ui_ex5 <- function(id) {
   ns <- NS(id)
   fluidPage(
-    titlePanel("Variabila Bidimensională (N, T)"),
+    titlePanel("Variabila Bidimensionala (N, T)"),
     sidebarLayout(
       sidebarPanel(
         h4("Parametri Simulare"),
         sliderInput(
-          ns("n_sim"), "Număr de simulări:", 1000, 10000, 5000,
+          ns("n_sim"), "Numar de simulari:", 1000, 10000, 5000,
           step = 500
         ),
         sliderInput(
@@ -17,7 +17,7 @@ ui_ex5 <- function(id) {
           step = 0.1
         ),
         sliderInput(
-          ns("max_retry"), "Număr maxim încercări (N_max):",
+          ns("max_retry"), "Numar maxim incercari (N_max):",
           2, 10, 5
         ),
         hr(),
@@ -25,12 +25,12 @@ ui_ex5 <- function(id) {
           ns("penalty"), "Penalizare Retry (secunde):", 0, 1.0, 0.2,
           step = 0.1
         ),
-        helpText("Se adaugă la timpul total (T) după fiecare eșec."),
+        helpText("Se adauga la timpul total (T) dupa fiecare esec."),
         hr(),
-        h4("Explicație"),
+        h4("Explicatie"),
         helpText(
-          "N = Variabilă discretă (Nr. încercări).",
-          "T = Variabilă continuă (Timp total)."
+          "N = Variabila discreta (Nr. incercari).",
+          "T = Variabila continua (Timp total)."
         )
       ),
       mainPanel(
@@ -40,15 +40,15 @@ ui_ex5 <- function(id) {
             plotOutput(ns("plotScat")),
             plotOutput(ns("plotBox")),
             helpText(
-              "Observăm relația dintre N (discret) și T (continuu)."
+              "Observam relatia dintre N (discret) si T (continuu)."
             )
           ),
           tabPanel(
-            "Statistici & Corelație (b, c)",
+            "Statistici & Corelatie (b, c)",
             h4("Statistici Descriptive"),
             tableOutput(ns("tabStats")),
             hr(),
-            h4("Matricea de Covarianță și Corelație"),
+            h4("Matricea de Covarianta si Corelatie"),
             verbatimTextOutput(ns("matCovCor")),
             hr(),
             uiOutput(ns("interpretare"))
@@ -104,11 +104,11 @@ server_ex5 <- function(id) {
         geom_jitter(width = 0.2, alpha = 0.3, color = "darkblue") +
         geom_smooth(method = "lm", color = "red", se = FALSE) +
         labs(
-          title = "Scatterplot (N, T) cu Jitter + Regresie Liniară",
+          title = "Scatterplot (N, T) cu Jitter + Regresie Liniara",
           subtitle = paste(
-            "Arată tendința generală de creștere a timpului odată cu N"
+            "Arata tendinta generala de crestere a timpului odata cu N"
           ),
-          x = "N (Număr Încercări)", y = "Timp (secunde)"
+          x = "N (Numar incercari)", y = "Timp (secunde)"
         ) +
         theme_minimal()
     })
@@ -122,9 +122,9 @@ server_ex5 <- function(id) {
       )) +
         geom_boxplot(alpha = 0.7, show.legend = FALSE) +
         labs(
-          title = "Boxplot: Distribuția lui T condiționată de N",
-          subtitle = "Cu cât avem mai multe încercări (N), cu atât T crește",
-          x = "N (Număr Încercări)", y = "Timp Total"
+          title = "Boxplot: Distributia lui T conditionata de N",
+          subtitle = "Cu cat avem mai multe incercari (N), cu atat T creste",
+          x = "N (Numar incercari)", y = "Timp Total"
         ) +
         theme_minimal() +
         scale_fill_brewer(palette = "Blues")
@@ -136,7 +136,7 @@ server_ex5 <- function(id) {
         df <- sim_data()
 
         data.frame(
-          Variabila = c("N (Nr. Încercări)", "Timp Total"),
+          Variabila = c("N (Nr. incercari)", "Timp Total"),
           Media_E = c(mean(df$Nr_incercari), mean(df$Timp)),
           Varianta_Var = c(var(df$Nr_incercari), var(df$Timp)),
           Min = c(min(df$Nr_incercari), min(df$Timp)),
@@ -148,9 +148,9 @@ server_ex5 <- function(id) {
 
     output$matCovCor <- renderPrint({
       df <- sim_data()
-      cat("Covarianța Cov(N, T):\n")
+      cat("Covarianta Cov(N, T):\n")
       print(cov(df$Nr_incercari, df$Timp))
-      cat("\nCoeficientul de Corelație Cor(N, T):\n")
+      cat("\nCoeficientul de Corelatie Cor(N, T):\n")
       print(cor(df$Nr_incercari, df$Timp))
     })
 
@@ -160,26 +160,26 @@ server_ex5 <- function(id) {
       val_cor <- cor(df$Nr_incercari, df$Timp)
 
       grad <- if (val_cor > 0.7) {
-        "puternică"
+        "puternica"
       } else if (val_cor > 0.3) {
-        "moderată"
+        "moderata"
       } else {
-        "slabă"
+        "slaba"
       }
 
       HTML(paste0(
-        "<h3>c) Interpretare Corelație</h3>",
-        "<p>Coeficientul de corelație este <b>", round(val_cor, 4), "</b>.</p>",
+        "<h3>c) Interpretare Corelatie</h3>",
+        "<p>Coeficientul de corelatie este <b>", round(val_cor, 4), "</b>.</p>",
         "<ul>",
-        "<li>Valoarea este <b>pozitivă</b>: Acest lucru confirmă logic că un",
-        "număr mai mare de ",
-        "încercări (N) duce la un timp total (T) mai mare (se adună timpii de",
+        "<li>Valoarea este <b>pozitiva</b>: Acest lucru confirma logic ca un",
+        "numar mai mare de ",
+        "incercari (N) duce la un timp total (T) mai mare (se aduna timpii de",
         "procesare + backoff).</li>",
-        "<li>Corelația este <b>", grad,
-        "</b>: Deși relația este directă, există variabilitate ",
-        "datorită naturii aleatoare a timpului de răspuns (distribuție",
-        "Exponențială). ",
-        "Chiar și cu N=1, timpul poate varia mult.</li>",
+        "<li>Corelatia este <b>", grad,
+        "</b>: Desi relatia este directa, exista variabilitate ",
+        "datorita naturii aleatoare a timpului de raspuns (distributie",
+        "Exponentiala). ",
+        "Chiar si cu N=1, timpul poate varia mult.</li>",
         "</ul>"
       ))
     })

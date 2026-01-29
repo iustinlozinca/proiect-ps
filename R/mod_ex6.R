@@ -4,11 +4,11 @@ library(ggplot2)
 ui_ex6 <- function(id) {
   ns <- NS(id)
   fluidPage(
-    titlePanel("Probabilități Condiționate și Condiționări"),
+    titlePanel("Probabilitati Conditionate si Conditionari"),
     sidebarLayout(
       sidebarPanel(
         h4("Parametri Simulare"),
-        sliderInput(ns("n_sim"), "Număr de cereri simulate:",
+        sliderInput(ns("n_sim"), "Numar de cereri simulate:",
           min = 1000, max = 20000, value = 10000, step = 1000
         ),
         sliderInput(ns("p_succes"), "Probabilitate succes (p):",
@@ -22,21 +22,21 @@ ui_ex6 <- function(id) {
         sliderInput(ns("t0_SLA"), "Prag Timp SLA (t0):",
           min = 0.5, max = 10.0, value = 2.0, step = 0.5
         ),
-        sliderInput(ns("n0_threshold"), "Prag Încercări (n0):",
+        sliderInput(ns("n0_threshold"), "Prag incercari (n0):",
           min = 1, max = 5, value = 2
         ),
         hr(),
         helpText(
           "A = {I = 1} - Succes final", br(),
           "B = {T ≤ t0} - SLA respectat", br(),
-          "C = {N ≤ n0} - Puține încercări"
+          "C = {N ≤ n0} - Putine incercari"
         )
       ),
       mainPanel(
         tabsetPanel(
           tabPanel(
-            "Probabilități Condiționate (a)",
-            h4("Estimări Empirice"),
+            "Probabilitati Conditionate (a)",
+            h4("Estimari Empirice"),
             tableOutput(ns("tabCondProb")),
             hr(),
             fluidRow(
@@ -46,8 +46,8 @@ ui_ex6 <- function(id) {
             verbatimTextOutput(ns("explainCondProb"))
           ),
           tabPanel(
-            "Speranțe Condiționate (b)",
-            h4("E(T | I) - Speranța Timpului Condiționată"),
+            "Sperante Conditionate (b)",
+            h4("E(T | I) - Speranta Timpului Conditionata"),
             tableOutput(ns("tabCondExp")),
             hr(),
             plotOutput(ns("plotCondExp")),
@@ -123,7 +123,7 @@ server_ex6 <- function(id) {
             mean(ev_a), mean(ev_b), mean(ev_c), p_a_given_c, p_b_given_a
           ),
           Descriere = c(
-            "Succes final", "SLA respectat", "Puține încercări",
+            "Succes final", "SLA respectat", "Putine incercari",
             "Succes dat fiind N ≤ n0", "SLA dat fiind succes"
           )
         )
@@ -145,8 +145,8 @@ server_ex6 <- function(id) {
         ) +
         geom_vline(xintercept = n0 + 0.5, color = "orange", linewidth = 1.2) +
         labs(
-          title = "Rata de Succes per Număr de Încercări",
-          x = "N (încercări)", y = "P(A | N)"
+          title = "Rata de Succes per Numar de incercari",
+          x = "N (incercari)", y = "P(A | N)"
         ) +
         ylim(0, 1) +
         theme_minimal()
@@ -168,7 +168,7 @@ server_ex6 <- function(id) {
           xintercept = t0, color = "red", linewidth = 1.2, linetype = "dashed"
         ) +
         labs(
-          title = "Distribuția T | Succes", x = "Timp (s)", y = "Densitate"
+          title = "Distributia T | Succes", x = "Timp (s)", y = "Densitate"
         ) +
         theme_minimal()
     })
@@ -186,7 +186,7 @@ server_ex6 <- function(id) {
         "P(A | N ≤ ", n0, ") = ", round(p_a_c, 4),
         " vs P(A) = ", round(p_a, 4), "\n",
         "P(B | A) = ", round(p_b_a, 4),
-        " (fracțiunea cererilor reușite care respectă SLA)"
+        " (fractiunea cererilor reusite care respecta SLA)"
       )
     })
 
@@ -198,7 +198,7 @@ server_ex6 <- function(id) {
         df_f <- df[df$I == 0, ]
 
         data.frame(
-          Condiție = c("I = 1 (Succes)", "I = 0 (Eșec)", "Total"),
+          Conditie = c("I = 1 (Succes)", "I = 0 (Esec)", "Total"),
           Nr_Obs = c(nrow(df_s), nrow(df_f), nrow(df)),
           `E(T)` = c(
             mean(df_s$Timp), if (nrow(df_f) > 0) mean(df_f$Timp) else NA,
@@ -220,7 +220,7 @@ server_ex6 <- function(id) {
     # Histograma suprapusa
     output$plotCondExp <- renderPlot({
       df <- sim_data()
-      df$Status <- ifelse(df$I == 1, "Succes", "Eșec")
+      df$Status <- ifelse(df$I == 1, "Succes", "Esec")
 
       ggplot(df, aes(x = .data$Timp, fill = .data$Status)) +
         geom_histogram(
@@ -229,10 +229,10 @@ server_ex6 <- function(id) {
           position = "identity"
         ) +
         scale_fill_manual(
-          values = c("Succes" = "#2ecc71", "Eșec" = "#e74c3c")
+          values = c("Succes" = "#2ecc71", "Esec" = "#e74c3c")
         ) +
         labs(
-          title = "Distribuția T Condiționată de I", x = "Timp (s)",
+          title = "Distributia T Conditionata de I", x = "Timp (s)",
           y = "Densitate"
         ) +
         theme_minimal()
@@ -241,12 +241,12 @@ server_ex6 <- function(id) {
     # Boxplot
     output$boxplotCondExp <- renderPlot({
       df <- sim_data()
-      df$Status <- ifelse(df$I == 1, "Succes", "Eșec")
+      df$Status <- ifelse(df$I == 1, "Succes", "Esec")
 
       ggplot(df, aes(x = .data$Status, y = .data$Timp, fill = .data$Status)) +
         geom_boxplot(alpha = 0.7) +
         scale_fill_manual(
-          values = c("Succes" = "#2ecc71", "Eșec" = "#e74c3c")
+          values = c("Succes" = "#2ecc71", "Esec" = "#e74c3c")
         ) +
         stat_summary(fun = mean, geom = "point", shape = 18, size = 3) +
         labs(title = "Boxplot: T | I", x = "", y = "Timp (s)") +
@@ -264,17 +264,17 @@ server_ex6 <- function(id) {
         paste0(
           "E(T | I=1) = ", round(e_s, 4), " secunde\n",
           "E(T | I=0) = ", round(e_f, 4), " secunde\n",
-          "Diferența: ", round(e_f - e_s, 4), " secunde"
+          "Diferenta: ", round(e_f - e_s, 4), " secunde"
         )
       } else {
         p_fail <- (1 - input$p_succes)^input$max_retry
         paste0(
           "E(T | I=1) = ", round(e_s, 4), " secunde\n",
-          "E(T | I=0) = N/A (nu există eșecuri în eșantion)\n\n",
-          "Explicație: P(eșec total) = (1-", input$p_succes, ")^",
+          "E(T | I=0) = N/A (nu exista esecuri in esantion)\n\n",
+          "Explicatie: P(esec total) = (1-", input$p_succes, ")^",
           input$max_retry, " = ",
           format(p_fail, scientific = FALSE, digits = 6), "\n",
-          "Cu ", input$n_sim, " simulări, nr. așteptat de eșecuri ≈ ",
+          "Cu ", input$n_sim, " simulari, nr. asteptat de esecuri ≈ ",
           round(p_fail * input$n_sim, 2)
         )
       }
@@ -294,43 +294,43 @@ server_ex6 <- function(id) {
       e_f <- if (sum(df$I == 0) > 0) mean(df$Timp[df$I == 0]) else NA
 
       HTML(paste0(
-        "<h4>1. Relația dintre numărul de încercări și succes</h4>",
+        "<h4>1. Relatia dintre numarul de incercari si succes</h4>",
         "<p>P(A | N ≤ ", n0, ") = <b>", round(p_a_c, 3), "</b>, ",
-        "în timp ce P(A) = <b>", round(p_a, 3), "</b>.</p>",
+        "in timp ce P(A) = <b>", round(p_a, 3), "</b>.</p>",
         "<p>", if (p_a_c > p_a) {
           paste0(
-            "Cererile cu puține încercări au o rată de succes mai mare decât ",
+            "Cererile cu putine incercari au o rata de succes mai mare decat ",
             "media."
           )
         } else {
-          "Nu există o diferență semnificativă între cele două probabilități."
+          "Nu exista o diferenta semnificativa intre cele doua probabilitati."
         }, "</p>",
-        "<hr><h4>2. Calitatea serviciului pentru cereri reușite</h4>",
+        "<hr><h4>2. Calitatea serviciului pentru cereri reusite</h4>",
         "<p>P(B | A) = <b>", round(p_b_a, 3), "</b></p>",
-        "<p>Din cererile care au reușit, ", round(p_b_a * 100, 1),
+        "<p>Din cererile care au reusit, ", round(p_b_a * 100, 1),
         "% au respectat pragul SLA de ", t0, " secunde.</p>",
-        "<hr><h4>3. Timpul de așteptare: succes vs eșec</h4>",
+        "<hr><h4>3. Timpul de asteptare: succes vs esec</h4>",
         "<p>E(T | I=1) = <b>", round(e_s, 2), "</b> secunde</p>",
         if (!is.na(e_f)) {
           paste0(
             "<p>E(T | I=0) = <b>", round(e_f, 2), "</b> secunde</p>",
-            "<p>Cererile eșuate au un timp mediu de așteptare cu <b>",
+            "<p>Cererile esuate au un timp mediu de asteptare cu <b>",
             round(e_f - e_s, 2), " secunde</b> mai mare. ",
-            "Aceasta se datorează faptului că parcurg toate cele ", max_r,
-            " încercări înainte de abandon.</p>"
+            "Aceasta se datoreaza faptului ca parcurg toate cele ", max_r,
+            " incercari inainte de abandon.</p>"
           )
         } else {
           p_fail_all <- (1 - input$p_succes)^max_r
           paste0(
             "<p>E(T | I=0) = <b>N/A</b></p>",
-            "<p><i>Nu există cereri eșuate în acest eșantion. ",
-            "Cu p = ", input$p_succes, " și N_max = ", max_r, ", ",
-            "probabilitatea de a eșua toate încercările este ",
+            "<p><i>Nu exista cereri esuate in acest esantion. ",
+            "Cu p = ", input$p_succes, " si N_max = ", max_r, ", ",
+            "probabilitatea de a esua toate incercarile este ",
             "(1-", input$p_succes, ")<sup>", max_r, "</sup> = ",
             format(p_fail_all, scientific = FALSE, digits = 4),
             " (≈ ", round(p_fail_all * 100, 4), "%). ",
             "Pentru ", input$n_sim,
-            " simulări, numărul așteptat de eșecuri este ~",
+            " simulari, numarul asteptat de esecuri este ~",
             round(p_fail_all * input$n_sim, 2), ".</i></p>"
           )
         }

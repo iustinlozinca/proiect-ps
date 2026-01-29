@@ -8,7 +8,7 @@ ui_ex11 <- function(id) {
     sidebarLayout(
       sidebarPanel(
         h4("Parametri Simulare"),
-        sliderInput(ns("n_zile"), "Număr de zile:",
+        sliderInput(ns("n_zile"), "Numar de zile:",
           min = 100, max = 1000, value = 365, step = 50
         ),
         sliderInput(ns("cereri_zi"), "Cereri medii per zi:",
@@ -27,7 +27,7 @@ ui_ex11 <- function(id) {
         ),
         hr(),
         h4("Parametri Economici (RON)"),
-        numericInput(ns("castig_succes"), "Câștig per succes:", value = 5),
+        numericInput(ns("castig_succes"), "Castig per succes:", value = 5),
         numericInput(ns("pierdere_churn"), "Pierdere per churn:", value = 500),
         numericInput(ns("penalitate_SLA"), "Penalitate SLA:", value = 10)
       ),
@@ -35,22 +35,22 @@ ui_ex11 <- function(id) {
         tabsetPanel(
           tabPanel(
             "Profitul Zilnic (a)",
-            h4("Definiția Variabilei Aleatoare"),
+            h4("Definitia Variabilei Aleatoare"),
             uiOutput(ns("definitieProfit")),
             hr(),
-            h4("Distribuția Profitului Zilnic"),
+            h4("Distributia Profitului Zilnic"),
             plotOutput(ns("plotProfit")),
             verbatimTextOutput(ns("detaliiZi"))
           ),
           tabPanel(
-            "Estimări Statistice (b)",
+            "Estimari Statistice (b)",
             h4("Statistici pentru Profitul Zilnic"),
             tableOutput(ns("tabStatistici")),
             hr(),
-            h4("Interval de Încredere 95%"),
+            h4("Interval de incredere 95%"),
             verbatimTextOutput(ns("intervalIncredere")),
             hr(),
-            h4("Evoluția Profitului Cumulat"),
+            h4("Evolutia Profitului Cumulat"),
             plotOutput(ns("plotCumulat"))
           ),
           tabPanel(
@@ -129,9 +129,9 @@ server_ex11 <- function(id) {
         "<hr>",
         "<p><b>Componente:</b></p>",
         "<ul>",
-        "<li><b>Câștig per succes:</b> ", input$castig_succes, " RON</li>",
+        "<li><b>Castig per succes:</b> ", input$castig_succes, " RON</li>",
         "<li><b>Pierdere per churn:</b> ", input$pierdere_churn, " RON</li>",
-        "<li><b>Penalitate SLA:</b> ", input$penalitate_SLA, " RON (când T > ",
+        "<li><b>Penalitate SLA:</b> ", input$penalitate_SLA, " RON (cand T > ",
         input$t0_SLA, "s)</li>",
         "</ul>",
         "</div>"
@@ -153,10 +153,10 @@ server_ex11 <- function(id) {
         ) +
         geom_vline(xintercept = 0, color = "black", linewidth = 1) +
         labs(
-          title = "Distribuția Profitului Zilnic",
+          title = "Distributia Profitului Zilnic",
           subtitle = paste0(
-            "Linia roșie = media (", round(mean(df$Profit), 0),
-            " RON) | Linia neagră = breakeven (profit = 0)"
+            "Linia rosie = media (", round(mean(df$Profit), 0),
+            " RON) | Linia neagra = breakeven (profit = 0)"
           ),
           x = "Profit (RON)", y = "Densitate"
         ) +
@@ -167,8 +167,8 @@ server_ex11 <- function(id) {
       df <- sim_data()
       paste0(
         "Medie succese/zi: ", round(mean(df$Succese), 1), "\n",
-        "Medie violări SLA/zi: ", round(mean(df$ViolariSLA), 1), "\n",
-        "Total churns: ", sum(df$Churns), " în ", input$n_zile, " zile\n",
+        "Medie violari SLA/zi: ", round(mean(df$ViolariSLA), 1), "\n",
+        "Total churns: ", sum(df$Churns), " in ", input$n_zile, " zile\n",
         "Zile cu pierdere (profit < 0): ", sum(df$Profit < 0)
       )
     })
@@ -180,8 +180,8 @@ server_ex11 <- function(id) {
         x <- df$Profit
 
         data.frame(
-          Statistică = c(
-            "Media (E[P])", "Varianța (Var[P])", "Deviația Standard",
+          Statistica = c(
+            "Media (E[P])", "Varianta (Var[P])", "Deviatia Standard",
             "Minim", "Maxim", "Mediana"
           ),
           Valoare = c(mean(x), var(x), sd(x), min(x), max(x), median(x)),
@@ -205,10 +205,10 @@ server_ex11 <- function(id) {
       upper <- m + t_crit * se
 
       paste0(
-        "Interval de încredere 95% pentru E[Profit]:\n",
+        "Interval de incredere 95% pentru E[Profit]:\n",
         "[", round(lower, 2), " ; ", round(upper, 2), "] RON\n\n",
-        "Interpretare: Cu 95% încredere, profitul mediu zilnic\n",
-        "se află în acest interval.\n\n",
+        "Interpretare: Cu 95% incredere, profitul mediu zilnic\n",
+        "se afla in acest interval.\n\n",
         "Eroare standard: ", round(se, 2), " RON\n",
         "Semiamplitudine IC: ±", round(t_crit * se, 2), " RON"
       )
@@ -223,7 +223,7 @@ server_ex11 <- function(id) {
         geom_line(color = "steelblue", linewidth = 0.8) +
         geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
         labs(
-          title = "Evoluția Profitului Cumulat",
+          title = "Evolutia Profitului Cumulat",
           x = "Ziua", y = "Profit Cumulat (RON)"
         ) +
         theme_minimal()
@@ -294,13 +294,13 @@ server_ex11 <- function(id) {
       HTML(paste0(
         "<h4>Descompunerea Profitului Mediu</h4>",
         "<table style='width:100%; border-collapse:collapse;'>",
-        "<tr style='background:#e9ecef;'><th>Componentă</th>",
-        "<th>Contribuție (RON/zi)</th></tr>",
-        "<tr><td>+ Câștig din succese</td><td style='color:green;'>+",
+        "<tr style='background:#e9ecef;'><th>Componenta</th>",
+        "<th>Contributie (RON/zi)</th></tr>",
+        "<tr><td>+ Castig din succese</td><td style='color:green;'>+",
         round(contrib_succes, 0), "</td></tr>",
         "<tr><td>− Pierdere din churn</td><td style='color:red;'>−",
         round(contrib_churn, 0), "</td></tr>",
-        "<tr><td>− Penalități SLA</td><td style='color:orange;'>−",
+        "<tr><td>− Penalitati SLA</td><td style='color:orange;'>−",
         round(contrib_sla, 0), "</td></tr>",
         "<tr style='background:#d4edda;'><td><b>= Profit mediu</b></td>",
         "<td><b>", round(profit_mediu, 0), "</b></td></tr>",
@@ -308,18 +308,18 @@ server_ex11 <- function(id) {
         "<hr><h4>Indicatori de Risc</h4>",
         "<p><b>Probabilitatea unei zile cu pierdere:</b> ",
         round(risc, 1), "%</p>",
-        "<p><b>Coeficient de variație:</b> ",
+        "<p><b>Coeficient de variatie:</b> ",
         round(sd(df$Profit) / abs(mean(df$Profit)) * 100, 1),
-        "% (variabilitate relativă)</p>",
-        "<hr><h4>Observații</h4>",
+        "% (variabilitate relativa)</p>",
+        "<hr><h4>Observatii</h4>",
         "<ul>",
-        "<li>Câștigul din succese este componenta principală (+",
+        "<li>Castigul din succese este componenta principala (+",
         round(contrib_succes, 0), " RON/zi)</li>",
-        "<li>Un singur churn costă ", input$pierdere_churn,
+        "<li>Un singur churn costa ", input$pierdere_churn,
         " RON, echivalent cu ",
         round(input$pierdere_churn / input$castig_succes, 0),
-        " cereri reușite</li>",
-        "<li>Creșterea lui p de la 0.85 la 0.95 crește profitul și ",
+        " cereri reusite</li>",
+        "<li>Cresterea lui p de la 0.85 la 0.95 creste profitul si ",
         "reduce riscul de pierdere</li>",
         "</ul>"
       ))

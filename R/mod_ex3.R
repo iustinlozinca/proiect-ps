@@ -4,13 +4,13 @@ library(ggplot2)
 ui_ex3 <- function(id) {
   ns <- NS(id)
   fluidPage(
-    titlePanel("Cereri, Retry-uri și Evenimente"),
+    titlePanel("Cereri, Retry-uri si Evenimente"),
     sidebarLayout(
       sidebarPanel(
         h4("Parametri Simulare"),
-        sliderInput(ns("n_sim"), "Număr utilizatori:", 1000, 10000, 5000),
+        sliderInput(ns("n_sim"), "Numar utilizatori:", 1000, 10000, 5000),
         sliderInput(
-          ns("p_succes"), "Probabilitate succes (per încercare):", 0.1, 0.9, 0.7
+          ns("p_succes"), "Probabilitate succes (per incercare):", 0.1, 0.9, 0.7
         ),
         sliderInput(ns("max_retry"), "Nr. Maxim retry:", 1, 10, 3),
         hr(),
@@ -19,7 +19,7 @@ ui_ex3 <- function(id) {
           ns("t0_SLA"), "Prag Timp (t0) - SLA:", 0.5, 10.0, 2.0,
           step = 0.5
         ),
-        sliderInput(ns("n0_at"), "Prag Încercări (n0) - Eficiență:", 1, 5, 1)
+        sliderInput(ns("n0_at"), "Prag incercari (n0) - Eficienta:", 1, 5, 1)
       ),
       mainPanel(
         tabsetPanel(
@@ -30,22 +30,22 @@ ui_ex3 <- function(id) {
               column(6, plotOutput(ns("distrIncercari")))
             ),
             helpText(
-              "Histograma timpului total (T) și a numărului de încercări (N)."
+              "Histograma timpului total (T) si a numarului de incercari (N)."
             )
           ),
           tabPanel(
-            "Probabilități (a)",
+            "Probabilitati (a)",
             tableOutput(ns("tabProb")),
             helpText(
-              "Probabilitățile empirice calculate prin",
-              "numărarea cazurilor favorabile / total cazuri."
+              "Probabilitatile empirice calculate prin",
+              "numararea cazurilor favorabile / total cazuri."
             )
           ),
           tabPanel(
             "Verificare Formule (b)",
             verbatimTextOutput(ns("verificareFormula")),
             helpText(
-              "Verificăm egalitatea P(A ∪ D) = P(A) + P(D) - P(A ∩ D)."
+              "Verificam egalitatea P(A ∪ D) = P(A) + P(D) - P(A ∩ D)."
             )
           ),
           tabPanel(
@@ -53,27 +53,27 @@ ui_ex3 <- function(id) {
             wellPanel(
               h4(
                 paste(
-                  "De ce probabilitatea empirică aproximează bine",
-                  "probabilitatea teoretică?"
+                  "De ce probabilitatea empirica aproximeaza bine",
+                  "probabilitatea teoretica?"
                 )
               ),
               p(
-                "Aceasta este o aplicație directă a ",
+                "Aceasta este o aplicatie directa a ",
                 strong("Legii Numerelor Mari (Law of Large Numbers)"), "."
               ),
               p(
                 paste(
-                  "Legea spune că media eșantionului (frecvența relativă a",
-                  "evenimentului) converge probabilistic către media",
-                  "populației",
-                  "(probabilitate teoretică) atunci când dimensiunea",
-                  "eșantionului (n) crește."
+                  "Legea spune ca media esantionului (frecventa relativa a",
+                  "evenimentului) converge probabilistic catre media",
+                  "populatiei",
+                  "(probabilitate teoretica) atunci cand dimensiunea",
+                  "esantionului (n) creste."
                 )
               ),
               p(
                 paste(
-                  "Astfel, cu n=5000 sau n=10000 simulări, estimarea noastră,",
-                  "este foarte precisă."
+                  "Astfel, cu n=5000 sau n=10000 simulari, estimarea noastra,",
+                  "este foarte precisa."
                 )
               )
             )
@@ -112,7 +112,7 @@ server_ex3 <- function(id) {
           if (runif(1) < p) {
             succes <- TRUE
           } else {
-            # Backoff penalty (0.2s) dacă esuează
+            # Backoff penalty (0.2s) daca esueaza
             timp <- timp + 0.2
           }
         }
@@ -134,14 +134,14 @@ server_ex3 <- function(id) {
       ev_a <- df$I == 1 # Succes
       ev_b <- df$T <= t0 # SLA Met
       ev_c <- df$N <= n0 # Efficiency
-      # Cel puțin un eșec
+      # Cel putin un esec
       ev_d_logic <- !(df$N == 1 & df$I == 1)
 
       data.frame(
         Simbol = c("P(A)", "P(B)", "P(C)", "P(A ∩ B)", "P(A ∪ D)"),
         Eveniment = c(
-          "Succes Final", "Timp <= t0 (SLA)", "Încercări <= n0",
-          "Succes rapid", "Succes SAU Eșecuri"
+          "Succes Final", "Timp <= t0 (SLA)", "incercari <= n0",
+          "Succes rapid", "Succes SAU Esecuri"
         ),
         Probabilitate = c(
           mean(ev_a), mean(ev_b), mean(ev_c),
@@ -169,14 +169,14 @@ server_ex3 <- function(id) {
       p_formula <- p_a_val + p_d_val - p_inter
 
       paste0(
-        "Verificăm: P(A ∪ D) = P(A) + P(D) - P(A ∩ D)\n\n",
+        "Verificam: P(A ∪ D) = P(A) + P(D) - P(A ∩ D)\n\n",
         "P(A ∪ D) [Empiric]:   ", round(p_reun_empiric, 6), "\n",
         "Calcul Formula:       ", round(p_formula, 6), "\n",
         "  -> P(A) = ", round(p_a_val, 4), "\n",
         "  -> P(D) = ", round(p_d_val, 4), "\n",
         "  -> P(A ∩ D) = ", round(p_inter, 4), "\n\n",
-        "Diferența: ", abs(p_reun_empiric - p_formula), "\n",
-        "Concluzie: Formula este verificată numeric!"
+        "Diferenta: ", abs(p_reun_empiric - p_formula), "\n",
+        "Concluzie: Formula este verificata numeric!"
       )
     })
 
@@ -185,7 +185,7 @@ server_ex3 <- function(id) {
       hist(
         sim_data()$T,
         col = "lightblue",
-        main = "Distribuția Timpului Total (T)",
+        main = "Distributia Timpului Total (T)",
         xlab = "Secunde (s)"
       )
       abline(v = input$t0_SLA, col = "red", lwd = 2, lty = 2)
@@ -195,8 +195,8 @@ server_ex3 <- function(id) {
       barplot(
         table(sim_data()$N),
         col = "orange",
-        main = "Frecvența nr. încercări (N)",
-        xlab = "Nr. Încercări"
+        main = "Frecventa nr. incercari (N)",
+        xlab = "Nr. incercari"
       )
       abline(v = input$n0_at, col = "blue", lwd = 2, lty = 2)
     })

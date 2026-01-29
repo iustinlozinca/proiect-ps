@@ -4,45 +4,45 @@ library(ggplot2)
 ui_ex8 <- function(id) {
   ns <- NS(id)
   fluidPage(
-    titlePanel("Inegalități Probabilistice"),
+    titlePanel("Inegalitati Probabilistice"),
     sidebarLayout(
       sidebarPanel(
-        h4("1. Parametri Markov & Cebîșev (Var T)"),
+        h4("1. Parametri Markov & Cebisev (Var T)"),
         helpText("T ~ Gamma(3, 2). Media = 1.5, Var = 0.75"),
-        sliderInput(ns("n_sim"), "Număr simulări:", 1000, 10000, 5000,
+        sliderInput(ns("n_sim"), "Numar simulari:", 1000, 10000, 5000,
           step = 1000
         ),
         sliderInput(ns("markov_a"), "Markov Limit (a):", 2.0, 5.0, 3.0,
           step = 0.1
         ),
-        sliderInput(ns("cheby_k"), "Cebîșev k (sigma):", 1.5, 5.0, 2.0,
+        sliderInput(ns("cheby_k"), "Cebisev k (sigma):", 1.5, 5.0, 2.0,
           step = 0.5
         ),
         hr(),
         h4("2. Parametri Chernoff (Var X)"),
-        helpText("X ~ Binomial(n, p) - Sumă de Bernoulli"),
-        sliderInput(ns("bin_n"), "Nr. Încercări (n):", 10, 100, 50, step = 10),
+        helpText("X ~ Binomial(n, p) - Suma de Bernoulli"),
+        sliderInput(ns("bin_n"), "Nr. incercari (n):", 10, 100, 50, step = 10),
         sliderInput(ns("bin_p"), "Prob. Succes (p):", 0.1, 0.9, 0.5,
           step = 0.1
         ),
-        sliderInput(ns("cher_delta"), "Delta (deviație medie):", 0.1, 1.0, 0.3,
+        sliderInput(ns("cher_delta"), "Delta (deviatie medie):", 0.1, 1.0, 0.3,
           step = 0.1
         ),
-        helpText("Verificăm P(X >= (1+delta)mu)"),
+        helpText("Verificam P(X >= (1+delta)mu)"),
         hr(),
-        h4("3. Jensen (Funcție Convexă)"),
-        selectInput(ns("func_phi"), "Funcția phi(x):",
+        h4("3. Jensen (Functie Convexa)"),
+        selectInput(ns("func_phi"), "Functia phi(x):",
           choices = c("x^2" = "sq", "exp(x)" = "exp")
         )
       ),
       mainPanel(
         tabsetPanel(
           tabPanel(
-            "Inegalități (a, b)",
+            "Inegalitati (a, b)",
             h4("Inegalitatea lui Markov (T)"),
             verbatimTextOutput(ns("resMarkov")),
             hr(),
-            h4("Inegalitatea lui Cebîșev (T)"),
+            h4("Inegalitatea lui Cebisev (T)"),
             verbatimTextOutput(ns("resCheby")),
             hr(),
             h4("Inegalitatea lui Chernoff (X ~ Binom)"),
@@ -70,7 +70,7 @@ server_ex8 <- function(id) {
   moduleServer(id, function(input, output, session) {
     # --- SIMULATIONS ---
 
-    # 1. T ~ Gamma (Continuous) for Markov/Cebîșev/Jensen
+    # 1. T ~ Gamma (Continuous) for Markov/Cebisev/Jensen
     sim_t <- reactive({
       n <- input$n_sim
       vec <- rgamma(n, shape = 3, rate = 2)
@@ -100,7 +100,7 @@ server_ex8 <- function(id) {
       cat(sprintf("Verificat: %.4f <= %.4f\n", prob_empiric, bound))
     })
 
-    # Cebîșev
+    # Cebisev
     output$resCheby <- renderPrint({
       d <- sim_t()
       k <- input$cheby_k
@@ -109,7 +109,7 @@ server_ex8 <- function(id) {
       bound <- 1 / (k^2)
 
       cat(sprintf("P(|T-mu| >= %.2f*sigma) = %.4f\n", k, prob_empiric))
-      cat(sprintf("Cebîșev Bound (1/k^2) = %.4f\n", bound))
+      cat(sprintf("Cebisev Bound (1/k^2) = %.4f\n", bound))
       cat(sprintf("Verificat: %.4f <= %.4f\n", prob_empiric, bound))
     })
 
@@ -150,7 +150,7 @@ server_ex8 <- function(id) {
         ) +
         labs(
           title = paste(
-            "Distribuția X și Limita Chernoff:",
+            "Distributia X si Limita Chernoff:",
             round(limit_val, 1)
           )
         ) +
@@ -204,7 +204,7 @@ server_ex8 <- function(id) {
         ) +
         labs(
           title = paste(
-            "Jensen: Media Penalizărilor (Roșu) >=",
+            "Jensen: Media Penalizarilor (Rosu) >=",
             "Penalizarea Mediei (Albastru)"
           ),
           x = "T", y = "phi(T)"
@@ -215,29 +215,29 @@ server_ex8 <- function(id) {
     # Interpretation
     output$interpLimits <- renderUI({
       HTML(paste0(
-        "<h3>c) Utilitatea Limitelor (Markov, Cebîșev, Chernoff)</h3>",
-        "<p>Aceste inegalități oferă 'garanții' asupra probabilității ca o",
-        "variabilă să devieze mult de la medie, ",
-        "folosind doar cunoștințe limitate (Media, Varianța), fără a ști ",
-        "distribuția exactă.</p>",
+        "<h3>c) Utilitatea Limitelor (Markov, Cebisev, Chernoff)</h3>",
+        "<p>Aceste inegalitati ofera 'garantii' asupra probabilitatii ca o",
+        "variabila sa devieze mult de la medie, ",
+        "folosind doar cunostinte limitate (Media, Varianta), fara a sti ",
+        "distributia exacta.</p>",
         "<ul>",
-        "<li><b>Markov:</b> Ne dă o limită superioară simplă pentru valorile ",
+        "<li><b>Markov:</b> Ne da o limita superioara simpla pentru valorile ",
         "extreme pozitive.</li>",
-        "<li><b>Cebîșev:</b> Ne spune că valorile foarte depărtate de medie ",
-        "sunt improbabile (de ex. e greu să fii la 3 deviații standard ",
-        "distanță).</li>",
-        "<li><b>Chernoff:</b> Este mult mai 'puternică' (scade exponențial) ",
-        "pentru sume de variabile independente (ca numărul de eșecuri). ",
-        "Observați că limita (Bound) este mult mai mică decât la Cebîșev.</li>",
+        "<li><b>Cebisev:</b> Ne spune ca valorile foarte departate de medie ",
+        "sunt improbabile (de ex. e greu sa fii la 3 deviatii standard ",
+        "distanta).</li>",
+        "<li><b>Chernoff:</b> Este mult mai 'puternica' (scade exponential) ",
+        "pentru sume de variabile independente (ca numarul de esecuri). ",
+        "Observati ca limita (Bound) este mult mai mica decat la Cebisev.</li>",
         "</ul>",
         "<hr>",
-        "<h3>e) Riscul și Jensen</h3>",
-        "<p>Inegalitatea lui Jensen (E[phi(T)] >= phi(E[T])) ne avertizează ",
-        "asupra <b>Costului Varianței</b>.</p>",
-        "<p>Dacă funcția de cost este convexă (ex: întârzierea mare ",
-        "penalizează disproporționat de mult), ",
-        "atunci un sistem oscilant este mai costisitor decât unul constant, ",
-        "chiar dacă au aceeași medie!.</p>"
+        "<h3>e) Riscul si Jensen</h3>",
+        "<p>Inegalitatea lui Jensen (E[phi(T)] >= phi(E[T])) ne avertizeaza ",
+        "asupra <b>Costului Variantei</b>.</p>",
+        "<p>Daca functia de cost este convexa (ex: intarzierea mare ",
+        "penalizeaza disproportionat de mult), ",
+        "atunci un sistem oscilant este mai costisitor decat unul constant, ",
+        "chiar daca au aceeasi medie!.</p>"
       ))
     })
   })

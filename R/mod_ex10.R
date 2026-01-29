@@ -8,7 +8,7 @@ ui_ex10 <- function(id) {
     sidebarLayout(
       sidebarPanel(
         h4("Parametri Simulare"),
-        sliderInput(ns("n_users"), "Număr de Utilizatori (N):",
+        sliderInput(ns("n_users"), "Numar de Utilizatori (N):",
           value = 1000, min = 100, max = 5000, step = 100
         ),
         sliderInput(ns("horizon"), "Orizont de Timp (H - Request-uri):",
@@ -20,24 +20,24 @@ ui_ex10 <- function(id) {
           min = 0, max = 0.05, value = 0.005, step = 0.001
         ),
         helpText(
-          "Probabilitatea ca un user să plece 'din senin' la orice pas."
+          "Probabilitatea ca un user sa plece 'din senin' la orice pas."
         ),
         hr(),
-        h4("2. Churn Condiționat (Mecanism 2)"),
-        sliderInput(ns("prob_p"), "Probabilitate Eșec Request (p):",
+        h4("2. Churn Conditionat (Mecanism 2)"),
+        sliderInput(ns("prob_p"), "Probabilitate Esec Request (p):",
           min = 0, max = 0.5, value = 0.1, step = 0.05
         ),
         sliderInput(ns("window_m"), "Fereastra de Monitorizare (m):",
           min = 1, max = 20, value = 5, step = 1
         ),
-        sliderInput(ns("threshold_k"), "Prag de Eșecuri (k):",
+        sliderInput(ns("threshold_k"), "Prag de Esecuri (k):",
           min = 1, max = 20, value = 3, step = 1
         ),
         helpText(
-          "Userul pleacă dacă are >= k eșecuri în ultimele m request-uri."
+          "Userul pleaca daca are >= k esecuri in ultimele m request-uri."
         ),
         hr(),
-        actionButton(ns("run_sim"), "Actualizează Simularea",
+        actionButton(ns("run_sim"), "Actualizeaza Simularea",
           class = "btn-primary", width = "100%"
         )
       ),
@@ -45,15 +45,15 @@ ui_ex10 <- function(id) {
         tabsetPanel(
           tabPanel(
             "Vizualizare (a, b)",
-            h4("Curba de Supraviețuire"),
+            h4("Curba de Supravietuire"),
             plotOutput(ns("survivalPlot")),
             hr(),
-            h4("Distribuția Cauzelor de Churn"),
+            h4("Distributia Cauzelor de Churn"),
             plotOutput(ns("reasonPlot"))
           ),
           tabPanel(
-            "Interpretare & Comparație (c)",
-            h4("Estimări Statistice"),
+            "Interpretare & Comparatie (c)",
+            h4("Estimari Statistice"),
             tableOutput(ns("statsTable")),
             hr(),
             uiOutput(ns("interpretation"))
@@ -109,7 +109,7 @@ server_ex10 <- function(id) {
 
           if (any(is_cond_churn)) {
             churn_step[is_cond_churn] <- t
-            churn_reason[is_cond_churn] <- "Condiționat (p, k, m)"
+            churn_reason[is_cond_churn] <- "Conditionat (p, k, m)"
             active_users[is_cond_churn] <- FALSE
           }
         }
@@ -135,9 +135,9 @@ server_ex10 <- function(id) {
         geom_line(color = "#2c3e50", size = 1.2) +
         geom_area(fill = "#3498db", alpha = 0.3) +
         labs(
-          title = "Curba de Supraviețuire (Retenție)",
-          subtitle = paste("Câți useri rămân activi în timp? (N =", res$N, ")"),
-          x = "Timp (Request-uri)", y = "Proporție Activi"
+          title = "Curba de Supravietuire (Retentie)",
+          subtitle = paste("Cati useri raman activi in timp? (N =", res$N, ")"),
+          x = "Timp (Request-uri)", y = "Proportie Activi"
         ) +
         theme_minimal(base_size = 14) +
         ylim(0, 1)
@@ -150,7 +150,7 @@ server_ex10 <- function(id) {
 
       # Ensure levels order
       df$Reason <- factor(df$Reason,
-        levels = c("Survived", "Aleator (q)", "Condiționat (p, k, m)")
+        levels = c("Survived", "Aleator (q)", "Conditionat (p, k, m)")
       )
 
       # Pre-calculate counts to avoid after_stat(count) linter warning
@@ -166,12 +166,12 @@ server_ex10 <- function(id) {
         ) +
         scale_fill_manual(values = c(
           "Survived" = "#27ae60", "Aleator (q)" = "#e67e22",
-          "Condiționat (p, k, m)" = "#c0392b"
+          "Conditionat (p, k, m)" = "#c0392b"
         )) +
         labs(
           title = "Cauzele Pierderii Utilizatorilor",
-          subtitle = "Comparație între cele două mecanisme",
-          x = "Motiv", y = "Număr Utilizatori"
+          subtitle = "Comparatie intre cele doua mecanisme",
+          x = "Motiv", y = "Numar Utilizatori"
         ) +
         theme_minimal()
     })
@@ -183,15 +183,15 @@ server_ex10 <- function(id) {
         total <- res$N
         surv <- sum(res$churn_reason == "Survived")
         rand <- sum(res$churn_reason == "Aleator (q)")
-        cond <- sum(res$churn_reason == "Condiționat (p, k, m)")
+        cond <- sum(res$churn_reason == "Conditionat (p, k, m)")
 
         churn_total <- total - surv
         churn_rate <- churn_total / total
 
         data.frame(
           Indicator = c(
-            "Total Utilizatori (N)", "Supraviețuitori", "Pierduți Aleator (q)",
-            "Pierduți Condiționat (fail)", "Probabilitate Totală Churn"
+            "Total Utilizatori (N)", "Supravietuitori", "Pierduti Aleator (q)",
+            "Pierduti Conditionat (fail)", "Probabilitate Totala Churn"
           ),
           Valoare = c(
             as.integer(total), as.integer(surv), as.integer(rand),
@@ -208,27 +208,27 @@ server_ex10 <- function(id) {
       churn_rate <- (res$N - sum(res$churn_reason == "Survived")) / res$N
 
       HTML(paste0(
-        "<h3>c) Interpretare și Comparație</h3>",
+        "<h3>c) Interpretare si Comparatie</h3>",
         "<ul>",
         "<li><b>Probabilitatea de Churn Estimat:</b> ",
         sprintf("%.1f%%", churn_rate * 100), ". ",
-        "Asta înseamnă că sistemul pierde ",
-        sprintf("%.1f%%", churn_rate * 100), " din useri în ", res$H,
-        " pași.</li>",
-        "<li><b>Comparație Scenarii:</b>",
+        "Asta inseamna ca sistemul pierde ",
+        sprintf("%.1f%%", churn_rate * 100), " din useri in ", res$H,
+        " pasi.</li>",
+        "<li><b>Comparatie Scenarii:</b>",
         "<ul>",
         "<li><i>Aleator (q=", res$q,
-        "):</i> Reprezintă zgomotul de fond sau competiția externă. ",
-        "Afectează constant userii.</li>",
-        "<li><i>Condiționat (p=", res$p,
-        "):</i> Reprezintă calitatea tehnică a serviciului. ",
-        "Dacă serverul dă erori dese (p mare), userii pleacă rapid ",
-        "(condiționat).</li>",
+        "):</i> Reprezinta zgomotul de fond sau competitia externa. ",
+        "Afecteaza constant userii.</li>",
+        "<li><i>Conditionat (p=", res$p,
+        "):</i> Reprezinta calitatea tehnica a serviciului. ",
+        "Daca serverul da erori dese (p mare), userii pleaca rapid ",
+        "(conditionat).</li>",
         "</ul></li>",
-        "<li><b>Impact:</b> Observăm din graficul de bare care mecanism ",
-        "domină. Dacă domină cel condiționat, trebuie îmbunătățit ",
-        "infrastructura (scăzut p). ",
-        "Dacă domină cel aleator, trebuie îmbunătățit ",
+        "<li><b>Impact:</b> Observam din graficul de bare care mecanism ",
+        "domina. Daca domina cel conditionat, trebuie imbunatatit ",
+        "infrastructura (scazut p). ",
+        "Daca domina cel aleator, trebuie imbunatatit ",
         "produsul/marketingul.</li>"
       ))
     })

@@ -4,24 +4,24 @@ library(ggplot2)
 ui_ex2 <- function(id) {
   ns <- NS(id)
   fluidPage(
-    titlePanel("Modelarea Timpilor de Răspuns"),
+    titlePanel("Modelarea Timpilor de Raspuns"),
     sidebarLayout(
       sidebarPanel(
         helpText(
-          "Parametri pentru distribuțiile timpului de răspuns (S) - Milisecunde"
+          "Parametri pentru distributiile timpului de raspuns (S) - Milisecunde"
         ),
 
         # Setari generale
-        sliderInput(ns("n_sim"), "Număr de cereri simulate:",
+        sliderInput(ns("n_sim"), "Numar de cereri simulate:",
           min = 100, max = 10000, value = 1000, step = 100
         ),
         hr(),
 
         # Distributia Exponentiala
-        h4("1. Distribuția Exponențială (Asimetrică)"),
+        h4("1. Distributia Exponentiala (Asimetrica)"),
         helpText(
-          "Introducem Media dorită (în ms), iar aplicația",
-          "calculează rata lambda."
+          "Introducem Media dorita (in ms), iar aplicatia",
+          "calculeaza rata lambda."
         ),
         sliderInput(ns("media_exp_ms"), "Media (ms):",
           min = 50, max = 1000, value = 200, step = 10
@@ -29,19 +29,19 @@ ui_ex2 <- function(id) {
         hr(),
 
         # Distributia Normala
-        h4("2. Distribuția Normală (Simetrică)"),
-        helpText("Trunchiată la 0 (valori pozitive)."),
+        h4("2. Distributia Normala (Simetrica)"),
+        helpText("Trunchiata la 0 (valori pozitive)."),
         sliderInput(ns("mu_norm_ms"), "Media (mu - ms):",
           min = 50, max = 1000, value = 200, step = 10
         ),
-        sliderInput(ns("sigma_norm_ms"), "Deviația Standard (sigma - ms):",
+        sliderInput(ns("sigma_norm_ms"), "Deviatia Standard (sigma - ms):",
           min = 10, max = 300, value = 50, step = 5
         )
       ),
       mainPanel(
         tabsetPanel(
           tabPanel(
-            "Distribuții (Histograme)",
+            "Distributii (Histograme)",
             plotOutput(ns("plotExponential")),
             plotOutput(ns("plotNormal"))
           ),
@@ -82,7 +82,7 @@ server_ex2 <- function(id) {
       d$x[which.max(d$y)]
     }
 
-    # Grafic Exponențiala
+    # Grafic Exponentiala
     output$plotExponential <- renderPlot({
       dat <- date_simulate()
       df <- data.frame(Timp = dat$exp)
@@ -111,12 +111,11 @@ server_ex2 <- function(id) {
         ) +
         labs(
           title = paste(
-            "Distribuția Exponențială (Media =", media,
+            "Distributia Exponentiala (Media =", media,
             "ms, Lambda =", round(lambda, 5), ")"
           ),
-          x = "Timp de răspuns (milisecunde)", y = "Densitate"
+          x = "Timp de raspuns (milisecunde)", y = "Densitate"
         ) +
-        # xlim intentionally removed/handled by filtering
         coord_cartesian(xlim = c(0, limit)) +
         theme_minimal()
     })
@@ -131,7 +130,6 @@ server_ex2 <- function(id) {
       limit <- max(1000, mu + 4 * sigma)
       df <- df[df$Timp <= limit, , drop = FALSE]
 
-      # Dynamic binwidth
       bw <- limit / 40
 
       ggplot(df, aes(x = .data$Timp)) +
@@ -150,9 +148,9 @@ server_ex2 <- function(id) {
         ) +
         labs(
           title = paste(
-            "Distribuția Normală (Mu =", mu, "ms, Sigma =", sigma, "ms)"
+            "Distributia Normala (Mu =", mu, "ms, Sigma =", sigma, "ms)"
           ),
-          x = "Timp de răspuns (milisecunde)", y = "Densitate"
+          x = "Timp de raspuns (milisecunde)", y = "Densitate"
         ) +
         coord_cartesian(xlim = c(0, limit)) +
         theme_minimal()
@@ -163,7 +161,7 @@ server_ex2 <- function(id) {
       {
         dat <- date_simulate()
 
-        # Calcule Exponențială
+        # Calcule Exponentiala
         exp_mean <- mean(dat$exp)
         exp_med <- median(dat$exp)
         exp_var <- var(dat$exp)
@@ -183,7 +181,7 @@ server_ex2 <- function(id) {
         data.frame(
           Metrica = c(
             "Media (Mean)", "Mediana (Median)",
-            "Valoarea Modală (Mode)", "Varianța (Variance)"
+            "Valoarea Modala (Mode)", "Varianta (Variance)"
           ),
           Exponentiala_Empirica = c(exp_mean, exp_med, exp_mod, exp_var),
           Exponentiala_Teoretica = c(
@@ -202,13 +200,13 @@ server_ex2 <- function(id) {
       dif_exp <- mean(dat$exp) - median(dat$exp)
 
       HTML(paste0(
-        "<h3>Discuție: Media vs Mediana în Latență</h3>",
+        "<h3>Discutie: Media vs Mediana in Latenta</h3>",
         "<p>",
-        "Observați că <b>Media > Mediana</b> (diferență aprox: ",
+        "Observati ca <b>Media > Mediana</b> (diferenta aprox: ",
         round(dif_exp, 1), " ms). <br>",
-        "Acest lucru indică o asimetrie la dreapta. ",
-        "Câteva cereri lente ('coada lungă') cresc media semnificativ, ",
-        "în timp ce mediana rămâne mai stabilă și mai reprezentativă ",
+        "Acest lucru indica o asimetrie la dreapta. ",
+        "Cateva cereri lente ('coada lunga') cresc media semnificativ, ",
+        "in timp ce mediana ramane mai stabila si mai reprezentativa ",
         "pentru utilizatorul 'tipic'.</p>"
       ))
     })
