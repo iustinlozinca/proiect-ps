@@ -1,5 +1,5 @@
-# Module Exercise 4: Random Variables (N, F) with Churn
-# Adapted from 4.R
+library(shiny)
+library(ggplot2)
 
 ui_ex4 <- function(id) {
   ns <- NS(id)
@@ -18,7 +18,10 @@ ui_ex4 <- function(id) {
           ns("p_success"), "Probabilitate succes (p):", 0.1, 0.9, 0.5,
           step = 0.1
         ),
-        sliderInput(ns("max_retry"), "Număr maxim încercări (N_max):", 2, 10, 5),
+        sliderInput(
+          ns("max_retry"), "Număr maxim încercări (N_max):",
+          2, 10, 5
+        ),
         hr(),
         h4("Setări Churn (Abandon)"),
 
@@ -42,7 +45,8 @@ ui_ex4 <- function(id) {
         conditionalPanel(
           condition = sprintf("input['%s'] == true", ns("enable_churn")),
           sliderInput(
-            ns("churn_threshold"), "Eșecuri consecutive până la abandon:", 1, 5, 2
+            ns("churn_threshold"), "Eșecuri consecutive până la abandon:",
+            1, 5, 2
           ),
           helpText(
             "Dacă utilizatorul are acest număr de eșecuri consecutive,",
@@ -106,7 +110,7 @@ server_ex4 <- function(id) {
         while (attempts < max_r && !success && !abandoned) {
           attempts <- attempts + 1
 
-          # Simulare încercare
+          # Simulare incercare
           if (runif(1) < p) {
             success <- TRUE
             consecutive_failures <- 0
@@ -114,14 +118,14 @@ server_ex4 <- function(id) {
             failures <- failures + 1
             consecutive_failures <- consecutive_failures + 1
 
-            # Verificare Churn Condiționat (Eșecuri)
+            # Verificare Churn Conditionat (Esecuri)
             if (use_churn_cond && consecutive_failures >= churn_limit) {
               abandoned <- TRUE
             }
           }
 
           # Verificare Churn Aleator (q)
-          # Doar dacă nu a reușit deja sau nu a abandonat deja
+          # Doar dacs nu a reusit deja sau nu a abandonat deja
           if (!success && !abandoned) {
             if (runif(1) < q_abandon) {
               abandoned <- TRUE
@@ -135,11 +139,11 @@ server_ex4 <- function(id) {
       data.frame(Trials = n_vec, Failures = f_vec)
     })
 
-    # Tabel Distribuție Comună
+    # Tabel Distributie Comuna
     output$jointTable <- renderTable(
       {
         df <- sim_data()
-        # Tabel de contingență normalizat (frecvențe relative)
+        # Tabel de contingenta normalizat (frecvente relative)
         tab <- table(df$Trials, df$Failures) / nrow(df)
         as.data.frame.matrix(tab)
       },
@@ -150,7 +154,7 @@ server_ex4 <- function(id) {
     output$jointPlot <- renderPlot({
       df <- sim_data()
 
-      # Agregăm datele folosind Base R (table -> data.frame)
+      # Agregam datele folosind Base R (table -> data.frame)
       tbl <- table(
         factor(df$Trials, levels = sort(unique(df$Trials))),
         factor(df$Failures, levels = sort(unique(df$Failures)))
@@ -160,9 +164,12 @@ server_ex4 <- function(id) {
       names(counts) <- c("Trials", "Failures", "Count")
       counts$Prob <- counts$Count / sum(counts$Count)
 
-      ggplot(counts, aes(x = Failures, y = Trials, fill = Prob)) +
+      ggplot(counts, aes(
+        x = .data$Failures, y = .data$Trials,
+        fill = .data$Prob
+      )) +
         geom_tile(color = "white") +
-        geom_text(aes(label = round(Prob, 3)), color = "black") +
+        geom_text(aes(label = round(.data$Prob, 3)), color = "black") +
         scale_fill_gradient(low = "white", high = "red") +
         labs(
           title = "Distribuția Comună P(N, F)",
@@ -174,27 +181,28 @@ server_ex4 <- function(id) {
     # Marginale
     output$margN <- renderPlot({
       df <- sim_data()
-      ggplot(df, aes(x = factor(Trials))) +
-        geom_bar(
-          aes(y = after_stat(count) / sum(after_stat(count))),
-          fill = "skyblue"
-        ) +
+      # Pre-calculate proportions
+      counts <- as.data.frame(table(Trials = df$Trials))
+      counts$Prop <- counts$Freq / sum(counts$Freq)
+
+      ggplot(counts, aes(x = factor(.data$Trials), y = .data$Prop)) +
+        geom_bar(stat = "identity", fill = "skyblue") +
         labs(title = "Marginala P(N)", x = "N", y = "Probabilitate") +
         ylim(0, 1)
     })
 
     output$margF <- renderPlot({
       df <- sim_data()
-      ggplot(df, aes(x = factor(Failures))) +
-        geom_bar(
-          aes(y = after_stat(count) / sum(after_stat(count))),
-          fill = "lightgreen"
-        ) +
+      counts <- as.data.frame(table(Failures = df$Failures))
+      counts$Prop <- counts$Freq / sum(counts$Freq)
+
+      ggplot(counts, aes(x = factor(.data$Failures), y = .data$Prop)) +
+        geom_bar(stat = "identity", fill = "lightgreen") +
         labs(title = "Marginala P(F)", x = "F", y = "Probabilitate") +
         ylim(0, 1)
     })
 
-    # Test Independență
+    # Test Independenta
     output$indepTest <- renderPrint({
       df <- sim_data()
       tbl <- table(df$Trials, df$Failures)

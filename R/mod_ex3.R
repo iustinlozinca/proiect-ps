@@ -1,5 +1,5 @@
-# Module Exercise 3: Requests, Retries, and Events
-# Adapted from 3.R
+library(shiny)
+library(ggplot2)
 
 ui_ex3 <- function(id) {
   ns <- NS(id)
@@ -34,7 +34,7 @@ ui_ex3 <- function(id) {
             )
           ),
           tabPanel(
-            "Probabilități (3.a)",
+            "Probabilități (a)",
             tableOutput(ns("tabProb")),
             helpText(
               "Probabilitățile empirice calculate prin",
@@ -42,12 +42,14 @@ ui_ex3 <- function(id) {
             )
           ),
           tabPanel(
-            "Verificare Formule (3.b)",
+            "Verificare Formule (b)",
             verbatimTextOutput(ns("verificareFormula")),
-            helpText("Verificăm egalitatea P(A ∪ D) = P(A) + P(D) - P(A ∩ D).")
+            helpText(
+              "Verificăm egalitatea P(A ∪ D) = P(A) + P(D) - P(A ∩ D)."
+            )
           ),
           tabPanel(
-            "Explicatii (3.c)",
+            "Explicatii (c)",
             wellPanel(
               h4(
                 paste(
@@ -62,7 +64,8 @@ ui_ex3 <- function(id) {
               p(
                 paste(
                   "Legea spune că media eșantionului (frecvența relativă a",
-                  "evenimentului) converge probabilistic către media populației",
+                  "evenimentului) converge probabilistic către media",
+                  "populației",
                   "(probabilitate teoretică) atunci când dimensiunea",
                   "eșantionului (n) crește."
                 )
@@ -102,14 +105,14 @@ server_ex3 <- function(id) {
 
         while (att < max_ret && !succes) {
           att <- att + 1
-          # Timp de răspuns pentru o încercare
+          # Timp de raspuns pentru o incercare
           # (Exponential cu rate=2 => medie 0.5s)
           timp <- timp + rexp(1, rate = 2)
 
           if (runif(1) < p) {
             succes <- TRUE
           } else {
-            # Backoff penalty (0.2s) dacă eșuează
+            # Backoff penalty (0.2s) dacă esuează
             timp <- timp + 0.2
           }
         }
@@ -122,7 +125,7 @@ server_ex3 <- function(id) {
       data.frame(T = t_total, I = i_final, N = n_total)
     })
 
-    # 3.a) Calcul Probabilități
+    # 3.a) Calcul Probabilitati
     output$tabProb <- renderTable({
       df <- sim_data()
       t0 <- input$t0_SLA
@@ -152,7 +155,7 @@ server_ex3 <- function(id) {
       df <- sim_data()
 
       ev_a <- df$I == 1
-      # D: Cel puțin un eșec
+      # D: Cel putin un esec
       ev_d <- !(df$N == 1 & df$I == 1)
 
       # P(A U D)

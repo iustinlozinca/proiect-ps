@@ -1,29 +1,34 @@
-# Module Exercise 2: Response Time Modeling
-# Adapted from 2.R
+library(shiny)
+library(ggplot2)
 
 ui_ex2 <- function(id) {
   ns <- NS(id)
   fluidPage(
-    titlePanel("Modelarea Timpilor de Răspuns (Latență)"),
+    titlePanel("Modelarea Timpilor de Răspuns"),
     sidebarLayout(
       sidebarPanel(
-        helpText("Parametri pentru distribuțiile timpului de răspuns (S) - Milisecunde"),
+        helpText(
+          "Parametri pentru distribuțiile timpului de răspuns (S) - Milisecunde"
+        ),
 
-        # Setări generale
+        # Setari generale
         sliderInput(ns("n_sim"), "Număr de cereri simulate:",
           min = 100, max = 10000, value = 1000, step = 100
         ),
         hr(),
 
-        # Distribuția Exponențială
+        # Distributia Exponentiala
         h4("1. Distribuția Exponențială (Asimetrică)"),
-        helpText("Introducem Media dorită (în ms), iar aplicația calculează rata lambda."),
+        helpText(
+          "Introducem Media dorită (în ms), iar aplicația",
+          "calculează rata lambda."
+        ),
         sliderInput(ns("media_exp_ms"), "Media (ms):",
           min = 50, max = 1000, value = 200, step = 10
         ),
         hr(),
 
-        # Distribuția Normală
+        # Distributia Normala
         h4("2. Distribuția Normală (Simetrică)"),
         helpText("Trunchiată la 0 (valori pozitive)."),
         sliderInput(ns("mu_norm_ms"), "Media (mu - ms):",
@@ -57,11 +62,11 @@ server_ex2 <- function(id) {
     date_simulate <- reactive({
       n <- input$n_sim
 
-      # Exponențială: lambda = 1 / mean
+      # Exponentiala: lambda = 1 divided by mean
       lambda <- 1 / input$media_exp_ms
       s_exp <- rexp(n, rate = lambda)
 
-      # Normală
+      # Normala
       s_norm_raw <- rnorm(n, mean = input$mu_norm_ms, sd = input$sigma_norm_ms)
       s_norm <- s_norm_raw[s_norm_raw > 0]
 
@@ -77,17 +82,23 @@ server_ex2 <- function(id) {
       d$x[which.max(d$y)]
     }
 
-    # Grafic Exponențială
+    # Grafic Exponențiala
     output$plotExponential <- renderPlot({
       dat <- date_simulate()
-      df <- data.frame(x = dat$exp)
+      df <- data.frame(Timp = dat$exp)
       lambda <- dat$lambda
       media <- input$media_exp_ms
 
-      ggplot(df, aes(x = x)) +
+      limit <- max(1000, media * 5)
+      df <- df[df$Timp <= limit, , drop = FALSE]
+
+      # Dynamic binwidth for visibility
+      bw <- limit / 40
+
+      ggplot(df, aes(x = .data$Timp)) +
         geom_histogram(
           aes(y = after_stat(density)),
-          binwidth = 10,
+          binwidth = bw,
           fill = "orange",
           color = "white",
           alpha = 0.7
@@ -105,21 +116,28 @@ server_ex2 <- function(id) {
           ),
           x = "Timp de răspuns (milisecunde)", y = "Densitate"
         ) +
-        xlim(0, max(1000, media * 5)) +
+        # xlim intentionally removed/handled by filtering
+        coord_cartesian(xlim = c(0, limit)) +
         theme_minimal()
     })
 
-    # Grafic Normală
+    # Grafic Normala
     output$plotNormal <- renderPlot({
       dat <- date_simulate()
-      df <- data.frame(x = dat$norm)
+      df <- data.frame(Timp = dat$norm)
       mu <- input$mu_norm_ms
       sigma <- input$sigma_norm_ms
 
-      ggplot(df, aes(x = x)) +
+      limit <- max(1000, mu + 4 * sigma)
+      df <- df[df$Timp <= limit, , drop = FALSE]
+
+      # Dynamic binwidth
+      bw <- limit / 40
+
+      ggplot(df, aes(x = .data$Timp)) +
         geom_histogram(
           aes(y = after_stat(density)),
-          binwidth = 10,
+          binwidth = bw,
           fill = "purple",
           color = "white",
           alpha = 0.7
@@ -136,7 +154,7 @@ server_ex2 <- function(id) {
           ),
           x = "Timp de răspuns (milisecunde)", y = "Densitate"
         ) +
-        xlim(0, max(1000, mu + 4 * sigma)) +
+        coord_cartesian(xlim = c(0, limit)) +
         theme_minimal()
     })
 
@@ -153,7 +171,7 @@ server_ex2 <- function(id) {
 
         lambda <- dat$lambda
 
-        # Calcule Normală
+        # Calcule Normala
         norm_mean <- mean(dat$norm)
         norm_med <- median(dat$norm)
         norm_var <- var(dat$norm)
@@ -168,7 +186,9 @@ server_ex2 <- function(id) {
             "Valoarea Modală (Mode)", "Varianța (Variance)"
           ),
           Exponentiala_Empirica = c(exp_mean, exp_med, exp_mod, exp_var),
-          Exponentiala_Teoretica = c(1 / lambda, log(2) / lambda, 0, 1 / (lambda^2)),
+          Exponentiala_Teoretica = c(
+            1 / lambda, log(2) / lambda, 0, 1 / (lambda^2)
+          ),
           Normala_Empirica = c(norm_mean, norm_med, norm_mod, norm_var),
           Normala_Teoretica = c(mu, mu, mu, sigma^2)
         )
@@ -176,7 +196,7 @@ server_ex2 <- function(id) {
       digits = 2
     )
 
-    # Discuție
+    # Discutie
     output$textDiscutie <- renderUI({
       dat <- date_simulate()
       dif_exp <- mean(dat$exp) - median(dat$exp)

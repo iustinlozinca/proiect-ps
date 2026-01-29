@@ -1,4 +1,5 @@
-# Module Exercise 9: Aproximare Normală și Agregare
+library(shiny)
+library(ggplot2)
 
 ui_ex9 <- function(id) {
   ns <- NS(id)
@@ -16,7 +17,9 @@ ui_ex9 <- function(id) {
         hr(),
         h4("Distribuția Latențelor Individuale"),
         selectInput(ns("dist_type"), "Tipul distribuției:",
-          choices = c("Exponențială" = "exp", "Gamma" = "gamma", "Uniformă" = "unif")
+          choices = c(
+            "Exponențială" = "exp", "Gamma" = "gamma", "Uniformă" = "unif"
+          )
         ),
         sliderInput(ns("media_latenta"), "Media latenței (ms):",
           min = 50, max = 500, value = 200, step = 10
@@ -30,14 +33,16 @@ ui_ex9 <- function(id) {
       ),
       mainPanel(
         tabsetPanel(
-          tabPanel("9.a) Agregare Zilnică",
+          tabPanel(
+            "Agregare Zilnică (a)",
             h4("Distribuția Latenței Totale pe Zi"),
             plotOutput(ns("plotAgregat")),
             hr(),
             tableOutput(ns("tabStatistici")),
             verbatimTextOutput(ns("explainAgregat"))
           ),
-          tabPanel("9.b) Comparație cu Normala",
+          tabPanel(
+            "Comparație cu Normala (b)",
             h4("Histogramă vs Densitate Normală"),
             plotOutput(ns("plotComparatie")),
             hr(),
@@ -57,25 +62,25 @@ ui_ex9 <- function(id) {
 
 server_ex9 <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Simulare agregări zilnice
+    # Simulare agregari zilnice
     sim_data <- reactive({
       n_zile <- input$n_zile
       cereri <- input$cereri_zi
       media <- input$media_latenta
       dist <- input$dist_type
 
-      # Generăm latența totală pentru fiecare zi
+      # Generam latenta totala pentru fiecare zi
       latenta_zi <- numeric(n_zile)
 
       for (i in 1:n_zile) {
-        # Generăm 'cereri' latențe individuale
+        # Generam 'cereri' latente individuale
         if (dist == "exp") {
           latente <- rexp(cereri, rate = 1 / media)
         } else if (dist == "gamma") {
-          # Gamma cu shape=2, scale calculat pentru media dorită
+          # Gamma cu shape=2, scale calculat pentru media dorita
           latente <- rgamma(cereri, shape = 2, scale = media / 2)
         } else {
-          # Uniformă între 0 și 2*media (pentru a avea media corectă)
+          # Uniforma intre 0 si 2*media (pentru a avea media corect)
           latente <- runif(cereri, min = 0, max = 2 * media)
         }
         latenta_zi[i] <- sum(latente)
@@ -87,67 +92,85 @@ server_ex9 <- function(id) {
       )
     })
 
-    # 9.a) Histogramă agregat
+    # 9.a) Histograma agregat
     output$plotAgregat <- renderPlot({
       df <- sim_data()
 
-      ggplot(df, aes(x = LatentaTotala)) +
-        geom_histogram(aes(y = after_stat(density)), bins = 30,
-                       fill = "steelblue", color = "white", alpha = 0.7) +
+      ggplot(df, aes(x = .data$LatentaTotala)) +
+        geom_histogram(aes(y = after_stat(density)),
+          bins = 30,
+          fill = "steelblue", color = "white", alpha = 0.7
+        ) +
         geom_density(color = "darkblue", linewidth = 1) +
         labs(
-          title = paste("Distribuția Latenței Totale pe Zi (n =", input$cereri_zi, "cereri/zi)"),
+          title = paste(
+            "Distribuția Latenței Totale pe Zi (n =", input$cereri_zi,
+            "cereri/zi)"
+          ),
           x = "Latență Totală (ms)", y = "Densitate"
         ) +
         theme_minimal()
     })
 
     # Tabel statistici
-    output$tabStatistici <- renderTable({
-      df <- sim_data()
-      x <- df$LatentaTotala
+    output$tabStatistici <- renderTable(
+      {
+        df <- sim_data()
+        x <- df$LatentaTotala
 
-      # Valori teoretice pentru suma
-      media_ind <- input$media_latenta
-      n <- input$cereri_zi
+        # Valori teoretice pentru suma
+        media_ind <- input$media_latenta
+        n <- input$cereri_zi
 
-      if (input$dist_type == "exp") {
-        var_ind <- media_ind^2
-      } else if (input$dist_type == "gamma") {
-        var_ind <- 2 * (media_ind / 2)^2
-      } else {
-        var_ind <- (2 * media_ind)^2 / 12
-      }
+        if (input$dist_type == "exp") {
+          var_ind <- media_ind^2
+        } else if (input$dist_type == "gamma") {
+          var_ind <- 2 * (media_ind / 2)^2
+        } else {
+          var_ind <- (2 * media_ind)^2 / 12
+        }
 
-      data.frame(
-        Măsură = c("Media", "Deviația Standard", "Asimetria (Skewness)", "Curtoza (Kurtosis)"),
-        Empirică = c(mean(x), sd(x), 
-                     sum((x - mean(x))^3) / (length(x) * sd(x)^3),
-                     sum((x - mean(x))^4) / (length(x) * sd(x)^4) - 3),
-        Teoretică_Normal = c(n * media_ind, sqrt(n * var_ind), 0, 0)
-      )
-    }, digits = 2)
+        data.frame(
+          Măsură = c(
+            "Media", "Deviația Standard", "Asimetria (Skewness)",
+            "Curtoza (Kurtosis)"
+          ),
+          Empirică = c(
+            mean(x), sd(x),
+            sum((x - mean(x))^3) / (length(x) * sd(x)^3),
+            sum((x - mean(x))^4) / (length(x) * sd(x)^4) - 3
+          ),
+          Teoretică_Normal = c(n * media_ind, sqrt(n * var_ind), 0, 0)
+        )
+      },
+      digits = 2
+    )
 
     output$explainAgregat <- renderText({
       paste0(
-        "Latența totală zilnică = suma a ", input$cereri_zi, " latențe individuale.\n",
+        "Latența totală zilnică = suma a ", input$cereri_zi,
+        " latențe individuale.\n",
         "Conform TLC, această sumă tinde către o distribuție normală.\n",
         "Media sumei = n × μ, Varianța sumei = n × σ²"
       )
     })
 
-    # 9.b) Comparație cu normala
+    # 9.b) Comparatie cu normala
     output$plotComparatie <- renderPlot({
       df <- sim_data()
       x <- df$LatentaTotala
       m <- mean(x)
       s <- sd(x)
 
-      ggplot(df, aes(x = LatentaTotala)) +
-        geom_histogram(aes(y = after_stat(density)), bins = 30,
-                       fill = "lightgreen", color = "white", alpha = 0.7) +
-        stat_function(fun = dnorm, args = list(mean = m, sd = s),
-                      color = "red", linewidth = 1.2) +
+      ggplot(df, aes(x = .data$LatentaTotala)) +
+        geom_histogram(aes(y = after_stat(density)),
+          bins = 30,
+          fill = "lightgreen", color = "white", alpha = 0.7
+        ) +
+        stat_function(
+          fun = dnorm, args = list(mean = m, sd = s),
+          color = "red", linewidth = 1.2
+        ) +
         labs(
           title = "Histogramă vs Distribuție Normală Ajustată",
           subtitle = paste0("N(μ = ", round(m, 0), ", σ = ", round(s, 0), ")"),
@@ -208,21 +231,29 @@ server_ex9 <- function(id) {
         "<h4>Evaluarea Aproximării Normale</h4>",
         "<p><b>Număr de termeni în sumă:</b> n = ", n, "</p>",
         "<p><b>Distribuția originală:</b> ", input$dist_type, "</p>",
-        "<p><b>Asimetria agregatului:</b> ", round(skew, 3), 
+        "<p><b>Asimetria agregatului:</b> ", round(skew, 3),
         " (normala are skewness = 0)</p>",
         "<p><b>p-value Shapiro-Wilk:</b> ", format(p_val, digits = 4), "</p>",
         "<hr>",
         "<p><b>Concluzie:</b> ",
         if (p_val > 0.05) {
-          paste0("Aproximarea normală este <b>adecvată</b> pentru n = ", n, " termeni.")
+          paste0(
+            "Aproximarea normală este <b>adecvată</b> pentru n = ", n,
+            " termeni."
+          )
         } else if (p_val > 0.01) {
-          paste0("Aproximarea normală este <b>acceptabilă</b>, dar nu perfectă.")
+          paste0(
+            "Aproximarea normală este <b>acceptabilă</b>, dar nu perfectă."
+          )
         } else {
-          paste0("Aproximarea normală este <b>slabă</b>. ",
-                 "Creșteți numărul de cereri/zi pentru o aproximare mai bună.")
+          paste0(
+            "Aproximarea normală este <b>slabă</b>. ",
+            "Creșteți numărul de cereri/zi pentru o aproximare mai bună."
+          )
         },
         "</p>",
-        "<p><i>Conform TLC, aproximarea se îmbunătățește odată cu creșterea lui n.</i></p>"
+        "<p><i>Conform TLC, aproximarea se îmbunătățește odată cu creșterea ",
+        "lui n.</i></p>"
       ))
     })
   })

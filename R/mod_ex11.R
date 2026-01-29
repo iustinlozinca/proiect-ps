@@ -1,4 +1,5 @@
-# Module Exercise 11: Impact Economic
+library(shiny)
+library(ggplot2)
 
 ui_ex11 <- function(id) {
   ns <- NS(id)
@@ -32,7 +33,8 @@ ui_ex11 <- function(id) {
       ),
       mainPanel(
         tabsetPanel(
-          tabPanel("11.a) Profitul Zilnic",
+          tabPanel(
+            "Profitul Zilnic (a)",
             h4("Definiția Variabilei Aleatoare"),
             uiOutput(ns("definitieProfit")),
             hr(),
@@ -40,7 +42,8 @@ ui_ex11 <- function(id) {
             plotOutput(ns("plotProfit")),
             verbatimTextOutput(ns("detaliiZi"))
           ),
-          tabPanel("11.b) Estimări Statistice",
+          tabPanel(
+            "Estimări Statistice (b)",
             h4("Statistici pentru Profitul Zilnic"),
             tableOutput(ns("tabStatistici")),
             hr(),
@@ -50,7 +53,8 @@ ui_ex11 <- function(id) {
             h4("Evoluția Profitului Cumulat"),
             plotOutput(ns("plotCumulat"))
           ),
-          tabPanel("11.c) Compromisuri",
+          tabPanel(
+            "Compromisuri (c)",
             h4("Analiza Compromisurilor Tehnico-Economice"),
             plotOutput(ns("plotTradeoff")),
             hr(),
@@ -82,22 +86,22 @@ server_ex11 <- function(id) {
       churns_zi <- numeric(n_zile)
 
       for (i in 1:n_zile) {
-        # Simulăm cererile zilei
-        n_cereri <- rpois(1, cereri)  # Nr cereri variabil (Poisson)
-        
-        # Pentru fiecare cerere: succes/eșec și timp
+        # Simulam cererile zilei
+        n_cereri <- rpois(1, cereri) # Nr cereri variabil (Poisson)
+
+        # Pentru fiecare cerere: succes/esec si timp
         succese <- rbinom(1, n_cereri, p)
-        
-        # Timpul per cerere (exponențial)
+
+        # Timpul per cerere (exponential)
         timpi <- rexp(n_cereri, rate = 2)
         violations <- sum(timpi > t0)
-        
-        # Churn (utilizatori pierduți)
-        n_churn <- rbinom(1, 1, q_churn)  # Max 1 churn/zi simplificat
-        
+
+        # Churn (utilizatori pierduti)
+        n_churn <- rbinom(1, 1, q_churn) # Max 1 churn/zi simplificat
+
         # Calculul profitului
         profit <- succese * g - n_churn * c_churn - violations * pen_sla
-        
+
         profit_zi[i] <- profit
         succese_zi[i] <- succese
         sla_violations[i] <- violations
@@ -113,7 +117,7 @@ server_ex11 <- function(id) {
       )
     })
 
-    # 11.a) Definiția profitului
+    # 11.a) Definitia profitului
     output$definitieProfit <- renderUI({
       HTML(paste0(
         "<div style='background:#f8f9fa; padding:15px; border-radius:5px;'>",
@@ -127,26 +131,35 @@ server_ex11 <- function(id) {
         "<ul>",
         "<li><b>Câștig per succes:</b> ", input$castig_succes, " RON</li>",
         "<li><b>Pierdere per churn:</b> ", input$pierdere_churn, " RON</li>",
-        "<li><b>Penalitate SLA:</b> ", input$penalitate_SLA, " RON (când T > ", input$t0_SLA, "s)</li>",
+        "<li><b>Penalitate SLA:</b> ", input$penalitate_SLA, " RON (când T > ",
+        input$t0_SLA, "s)</li>",
         "</ul>",
         "</div>"
       ))
     })
 
-    # Histogramă profit
+    # Histograma profit
     output$plotProfit <- renderPlot({
       df <- sim_data()
 
-      ggplot(df, aes(x = Profit)) +
-        geom_histogram(aes(y = after_stat(density)), bins = 30,
-                       fill = "steelblue", color = "white", alpha = 0.7) +
-        geom_vline(xintercept = mean(df$Profit), color = "red",
-                   linewidth = 1.2, linetype = "dashed") +
+      ggplot(df, aes(x = .data$Profit)) +
+        geom_histogram(aes(y = after_stat(density)),
+          bins = 30,
+          fill = "steelblue", color = "white", alpha = 0.7
+        ) +
+        geom_vline(
+          xintercept = mean(df$Profit), color = "red",
+          linewidth = 1.2, linetype = "dashed"
+        ) +
         geom_vline(xintercept = 0, color = "black", linewidth = 1) +
-        labs(title = "Distribuția Profitului Zilnic",
-             subtitle = paste0("Linia roșie = media (", round(mean(df$Profit), 0), 
-                               " RON) | Linia neagră = breakeven (profit = 0)"),
-             x = "Profit (RON)", y = "Densitate") +
+        labs(
+          title = "Distribuția Profitului Zilnic",
+          subtitle = paste0(
+            "Linia roșie = media (", round(mean(df$Profit), 0),
+            " RON) | Linia neagră = breakeven (profit = 0)"
+          ),
+          x = "Profit (RON)", y = "Densitate"
+        ) +
         theme_minimal()
     })
 
@@ -161,28 +174,33 @@ server_ex11 <- function(id) {
     })
 
     # 11.b) Statistici
-    output$tabStatistici <- renderTable({
-      df <- sim_data()
-      x <- df$Profit
+    output$tabStatistici <- renderTable(
+      {
+        df <- sim_data()
+        x <- df$Profit
 
-      data.frame(
-        Statistică = c("Media (E[P])", "Varianța (Var[P])", "Deviația Standard",
-                       "Minim", "Maxim", "Mediana"),
-        Valoare = c(mean(x), var(x), sd(x), min(x), max(x), median(x)),
-        Unitate = rep("RON", 6)
-      )
-    }, digits = 2)
+        data.frame(
+          Statistică = c(
+            "Media (E[P])", "Varianța (Var[P])", "Deviația Standard",
+            "Minim", "Maxim", "Mediana"
+          ),
+          Valoare = c(mean(x), var(x), sd(x), min(x), max(x), median(x)),
+          Unitate = rep("RON", 6)
+        )
+      },
+      digits = 2
+    )
 
     output$intervalIncredere <- renderText({
       df <- sim_data()
       x <- df$Profit
       n <- length(x)
-      
+
       # IC 95% pentru medie
       m <- mean(x)
       se <- sd(x) / sqrt(n)
       t_crit <- qt(0.975, df = n - 1)
-      
+
       lower <- m - t_crit * se
       upper <- m + t_crit * se
 
@@ -201,63 +219,74 @@ server_ex11 <- function(id) {
       df <- sim_data()
       df$ProfitCumulat <- cumsum(df$Profit)
 
-      ggplot(df, aes(x = Zi, y = ProfitCumulat)) +
+      ggplot(df, aes(x = .data$Zi, y = .data$ProfitCumulat)) +
         geom_line(color = "steelblue", linewidth = 0.8) +
         geom_hline(yintercept = 0, color = "black", linetype = "dashed") +
-        labs(title = "Evoluția Profitului Cumulat",
-             x = "Ziua", y = "Profit Cumulat (RON)") +
+        labs(
+          title = "Evoluția Profitului Cumulat",
+          x = "Ziua", y = "Profit Cumulat (RON)"
+        ) +
         theme_minimal()
     })
 
     # 11.c) Compromisuri
     output$plotTradeoff <- renderPlot({
-      # Simulăm pentru diferite valori de p
+      # Simulam pentru diferite valori de p
       p_vals <- seq(0.6, 0.99, by = 0.05)
       results <- data.frame(p = p_vals, MedieProfit = NA, RiscPierdere = NA)
 
       for (j in seq_along(p_vals)) {
         p <- p_vals[j]
         profits <- numeric(200)
-        
+
         for (i in 1:200) {
           n_cereri <- rpois(1, input$cereri_zi)
           succese <- rbinom(1, n_cereri, p)
           timpi <- rexp(n_cereri, rate = 2)
           violations <- sum(timpi > input$t0_SLA)
           n_churn <- rbinom(1, 1, input$prob_churn)
-          
-          profits[i] <- succese * input$castig_succes - 
-                        n_churn * input$pierdere_churn - 
-                        violations * input$penalitate_SLA
+
+          profits[i] <- succese * input$castig_succes -
+            n_churn * input$pierdere_churn -
+            violations * input$penalitate_SLA
         }
         results$MedieProfit[j] <- mean(profits)
         results$RiscPierdere[j] <- mean(profits < 0) * 100
       }
 
       ggplot(results, aes(x = p)) +
-        geom_line(aes(y = MedieProfit, color = "Profit Mediu"), linewidth = 1.2) +
-        geom_point(aes(y = MedieProfit, color = "Profit Mediu"), size = 3) +
-        geom_line(aes(y = RiscPierdere * 10, color = "Risc Pierdere (%)"), 
-                  linewidth = 1.2, linetype = "dashed") +
+        geom_line(aes(y = .data$MedieProfit, color = "Profit Mediu"),
+          linewidth = 1.2
+        ) +
+        geom_point(aes(y = .data$MedieProfit, color = "Profit Mediu"),
+          size = 3
+        ) +
+        geom_line(aes(y = .data$RiscPierdere * 10, color = "Risc Pierdere (%)"),
+          linewidth = 1.2, linetype = "dashed"
+        ) +
         scale_y_continuous(
           name = "Profit Mediu (RON)",
-          sec.axis = sec_axis(~./10, name = "Risc Pierdere (%)")
+          sec.axis = sec_axis(~ . / 10, name = "Risc Pierdere (%)")
         ) +
-        scale_color_manual(values = c("Profit Mediu" = "steelblue", 
-                                      "Risc Pierdere (%)" = "red")) +
-        labs(title = "Compromis: Probabilitate Succes vs Profit/Risc",
-             x = "Probabilitate Succes (p)", color = "") +
+        scale_color_manual(values = c(
+          "Profit Mediu" = "steelblue",
+          "Risc Pierdere (%)" = "red"
+        )) +
+        labs(
+          title = "Compromis: Probabilitate Succes vs Profit/Risc",
+          x = "Probabilitate Succes (p)", color = ""
+        ) +
         theme_minimal() +
         theme(legend.position = "bottom")
     })
 
     output$analizaCompromisuri <- renderUI({
       df <- sim_data()
-      
+
       profit_mediu <- mean(df$Profit)
       risc <- mean(df$Profit < 0) * 100
-      
-      # Contribuții
+
+      # Contributii
       contrib_succes <- mean(df$Succese) * input$castig_succes
       contrib_churn <- mean(df$Churns) * input$pierdere_churn
       contrib_sla <- mean(df$ViolariSLA) * input$penalitate_SLA
@@ -265,24 +294,33 @@ server_ex11 <- function(id) {
       HTML(paste0(
         "<h4>Descompunerea Profitului Mediu</h4>",
         "<table style='width:100%; border-collapse:collapse;'>",
-        "<tr style='background:#e9ecef;'><th>Componentă</th><th>Contribuție (RON/zi)</th></tr>",
-        "<tr><td>+ Câștig din succese</td><td style='color:green;'>+", round(contrib_succes, 0), "</td></tr>",
-        "<tr><td>− Pierdere din churn</td><td style='color:red;'>−", round(contrib_churn, 0), "</td></tr>",
-        "<tr><td>− Penalități SLA</td><td style='color:orange;'>−", round(contrib_sla, 0), "</td></tr>",
-        "<tr style='background:#d4edda;'><td><b>= Profit mediu</b></td><td><b>", round(profit_mediu, 0), "</b></td></tr>",
+        "<tr style='background:#e9ecef;'><th>Componentă</th>",
+        "<th>Contribuție (RON/zi)</th></tr>",
+        "<tr><td>+ Câștig din succese</td><td style='color:green;'>+",
+        round(contrib_succes, 0), "</td></tr>",
+        "<tr><td>− Pierdere din churn</td><td style='color:red;'>−",
+        round(contrib_churn, 0), "</td></tr>",
+        "<tr><td>− Penalități SLA</td><td style='color:orange;'>−",
+        round(contrib_sla, 0), "</td></tr>",
+        "<tr style='background:#d4edda;'><td><b>= Profit mediu</b></td>",
+        "<td><b>", round(profit_mediu, 0), "</b></td></tr>",
         "</table>",
-        
         "<hr><h4>Indicatori de Risc</h4>",
-        "<p><b>Probabilitatea unei zile cu pierdere:</b> ", round(risc, 1), "%</p>",
-        "<p><b>Coeficient de variație:</b> ", round(sd(df$Profit) / abs(mean(df$Profit)) * 100, 1), 
+        "<p><b>Probabilitatea unei zile cu pierdere:</b> ",
+        round(risc, 1), "%</p>",
+        "<p><b>Coeficient de variație:</b> ",
+        round(sd(df$Profit) / abs(mean(df$Profit)) * 100, 1),
         "% (variabilitate relativă)</p>",
-        
         "<hr><h4>Observații</h4>",
         "<ul>",
-        "<li>Câștigul din succese este componenta principală (+", round(contrib_succes, 0), " RON/zi)</li>",
-        "<li>Un singur churn costă ", input$pierdere_churn, " RON, echivalent cu ",
-        round(input$pierdere_churn / input$castig_succes, 0), " cereri reușite</li>",
-        "<li>Creșterea lui p de la 0.85 la 0.95 crește profitul și reduce riscul de pierdere</li>",
+        "<li>Câștigul din succese este componenta principală (+",
+        round(contrib_succes, 0), " RON/zi)</li>",
+        "<li>Un singur churn costă ", input$pierdere_churn,
+        " RON, echivalent cu ",
+        round(input$pierdere_churn / input$castig_succes, 0),
+        " cereri reușite</li>",
+        "<li>Creșterea lui p de la 0.85 la 0.95 crește profitul și ",
+        "reduce riscul de pierdere</li>",
         "</ul>"
       ))
     })
